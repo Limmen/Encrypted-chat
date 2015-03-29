@@ -5,6 +5,8 @@
  */
 package model;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author kim
@@ -13,6 +15,8 @@ public class Chat
 {
     private boolean serverRunning;
     private Server server;
+    private ArrayList<Client> clients = new ArrayList();
+    private ArrayList<ChatEntry> chatentrys = new ArrayList();
     
     public Chat()
     {
@@ -60,6 +64,20 @@ public class Chat
         {
             System.out.println("Server not running");
         }
+    }
+    public Client newClient(String ip, int port, String username)
+    {
+        Client client = new Client(ip, port, username);
+        clients.add(client);
+        return client;
+    }
+    public void newEntry(String author, String msg)
+    {
+        chatentrys.add(new ChatEntry(author, msg));
+    }
+    public ArrayList<ChatEntry> getChat()
+    {
+        return chatentrys;
     }
     
 }

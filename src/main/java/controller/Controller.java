@@ -5,8 +5,10 @@
  */
 package controller;
 
+import java.util.ArrayList;
 import model.Chat;
-import model.Server;
+import model.ChatEntry;
+import model.Client;
 
 /**
  *
@@ -35,5 +37,16 @@ public class Controller
     {
         chat.stopServer();
     }
-    
+    public Client newConnection(String ip, int port,  String username)
+    {
+        return chat.newClient(ip, port, username);
+    }
+    public void newEntry(String author, String msg)
+    {
+        chat.newEntry(author, msg);
+    }
+    public ArrayList<ChatEntry> getChat()
+    {
+        return chat.getChat();
+    }
 }

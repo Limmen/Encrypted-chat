@@ -76,6 +76,9 @@ public class MainFrame extends JFrame
         else
         {
         container = new JPanel(new MigLayout("wrap 2"));
+        txt = new JLabel("Local Server");
+        txt.setFont(Bold);
+        container.add(txt, "span 2, align center");
         txt = new JLabel("Status: ");
         txt.setFont(Bold);
         container.add(txt, "span 1");
@@ -88,7 +91,7 @@ public class MainFrame extends JFrame
         port = new JLabel("----");
         port.setFont(Bold);
         container.add(port, "span 1");
-        btn = new JButton("Start Server");
+        btn = new JButton("Start Local Server");
         btn.setFont(Bold);
         btn.addActionListener(new ActionListener() 
         {
@@ -102,7 +105,7 @@ public class MainFrame extends JFrame
 	        }
 	});
         container.add(btn, "span 1");
-        btn = new JButton("Stop Server");
+        btn = new JButton("Stop Local Server");
         btn.setFont(Bold);
         btn.addActionListener(new ActionListener() 
         {
@@ -117,7 +120,15 @@ public class MainFrame extends JFrame
         container.add(btn, "span 1");
         btn = new JButton("Connect");
         btn.setFont(Bold);
-        container.add(btn, "span 2");
+        btn.addActionListener(new ActionListener() 
+        {
+	    public void actionPerformed(ActionEvent arg0) 
+                {   
+                    view.connect();
+                    pack();
+	        }
+	});
+        container.add(btn, "span 2, align center");
         add(container);
         
         }

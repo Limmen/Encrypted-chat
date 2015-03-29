@@ -19,10 +19,14 @@ public class ClientHandler extends Thread
     PrintWriter out;
     BufferedReader in;
     Socket socket;
+    String ip;
+    int port;
     public ClientHandler(Socket socket)
     {
         this.socket = socket;
-        System.out.println("client has connected to: " + socket.getInetAddress().toString());
+        ip = socket.getRemoteSocketAddress().toString();
+        port = socket.getLocalPort();
+        System.out.println("client has connected to IP: " + ip + "port: " + port);
     }
     @Override
     public void run()
@@ -30,7 +34,7 @@ public class ClientHandler extends Thread
         
     }
     
-     public void bindStreams(Socket socket)
+    public void bindStreams(Socket socket)
     {
         //Bind standard streams to writer and reader.
         try

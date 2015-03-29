@@ -6,7 +6,8 @@
 package view;
 
 import controller.Controller;
-import model.Server;
+import java.util.ArrayList;
+import model.ChatEntry;
 
 /**
  *
@@ -17,6 +18,8 @@ public class View
     private Controller contr;
     private ServerFrame server;
     private MainFrame main;
+    private ConnectFrame connect;
+    private ArrayList<ClientFrame> clients = new ArrayList();
     public View(Controller contr)
     {
         this.contr = contr;
@@ -38,6 +41,22 @@ public class View
     public void stopServer()
     {
         contr.stopServer();
+    }
+    public void connect()
+    {
+        this.connect = new ConnectFrame(this);
+    }
+    public void newConnection(String ip, int port, String username)
+    {
+        clients.add(new ClientFrame(this, contr.newConnection(ip, port, username)));
+    }
+    public void newEntry(String author, String msg)
+    {
+        contr.newEntry(author, msg);
+    }
+    public ArrayList<ChatEntry> getChat()
+    {
+        return contr.getChat();
     }
     
 }
