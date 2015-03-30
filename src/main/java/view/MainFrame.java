@@ -99,7 +99,7 @@ public class MainFrame extends JFrame
                 {   
                     view.startServer();
                     int p = view.getServerPort();
-                    status.setText("Running");
+                    status.setText("Running (localhost)");
                     port.setText(Integer.toString(p));
                     pack();
 	        }

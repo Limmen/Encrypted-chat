@@ -31,6 +31,26 @@ public class ClientHandler extends Thread
     @Override
     public void run()
     {
+        try
+            {
+                socket = new Socket(ip, port);
+                bindStreams(socket);
+            }
+            catch(Exception e)
+            {
+                
+            }
+        while (true)
+        {
+            try
+            {
+            System.out.println("Client says:" + in.readLine());
+            }
+        catch(Exception e)
+        {
+            
+        }
+        }
         
     }
     
@@ -47,13 +67,13 @@ public class ClientHandler extends Thread
             
         }
     }
-    public void close(Socket socket)
+    public void kill()
     {
         System.out.println("Shutting down socket");
-        out.close();
         try
         {
-            socket.close();
+            out.close();
+            in.close();
             socket.close();
         }
         catch(Exception e)
@@ -61,5 +81,5 @@ public class ClientHandler extends Thread
             
         }
     }
-
+   
 }

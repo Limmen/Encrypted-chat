@@ -31,18 +31,25 @@ public class Client extends Thread
     @Override
     public void run()
     {
-        while (true)
-        {
             try
             {
                 socket = new Socket(ip, port);
                 bindStreams(socket);
-                System.out.println("server says:" + in.readLine());
             }
             catch(Exception e)
             {
                 
             }
+        while (true)
+        {
+            try
+            {
+            System.out.println("server says:" + in.readLine());
+            }
+        catch(Exception e)
+        {
+            
+        }
         }
     }
     public void bindStreams(Socket socket)
@@ -80,6 +87,19 @@ public class Client extends Thread
     {
         return username;
     }
-
+    public void kill()
+    {
+        System.out.println("Shutting down socket");
+        try
+        {
+            out.close();
+            in.close();
+            socket.close();
+        }
+        catch(Exception e)
+        {
+            
+        }
+    }
     
 }

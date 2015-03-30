@@ -58,6 +58,10 @@ public class Chat
         if(serverRunning)
         {
             server.kill();
+            for(Client c : clients)
+            {
+                c.kill();
+            }
             serverRunning = false;
         }
         else
@@ -69,6 +73,7 @@ public class Chat
     {
         Client client = new Client(ip, port, username);
         clients.add(client);
+        client.start();
         return client;
     }
     public void newEntry(String author, String msg)
@@ -78,6 +83,10 @@ public class Chat
     public ArrayList<ChatEntry> getChat()
     {
         return chatentrys;
+    }
+    public ClientHandler getClientHandler()
+    {
+        return server.getclientHandler();
     }
     
 }

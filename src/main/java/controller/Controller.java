@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import model.Chat;
 import model.ChatEntry;
 import model.Client;
+import model.ClientHandler;
 
 /**
  *
@@ -48,5 +49,13 @@ public class Controller
     public ArrayList<ChatEntry> getChat()
     {
         return chat.getChat();
+    }
+    public ClientHandler getClientHandler()
+    {
+        return chat.getClientHandler();
+    }
+    public void encrypt()
+    {
+        
     }
 }

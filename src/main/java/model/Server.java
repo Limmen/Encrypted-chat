@@ -17,6 +17,7 @@ public class Server extends Thread
     ServerSocket server;
     private int port;
     Socket socket = new Socket();
+    ClientHandler clienthandler;
     public Server()
     {
         port = 1237;
@@ -54,7 +55,7 @@ public class Server extends Thread
         try
         {
             socket = server.accept(); //wait for client to connect.
-            new ClientHandler(socket);
+            clienthandler = new ClientHandler(socket);
         }
         catch(Exception e)
         {
@@ -72,11 +73,16 @@ public class Server extends Thread
             interrupt();
             socket.close();
             server.close();
+            clienthandler.kill();
         }
         catch(Exception e)
         {
                     
         }
+    }
+    public ClientHandler getclientHandler()
+    {
+        return clienthandler;
     }
 
 }

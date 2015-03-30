@@ -92,10 +92,16 @@ public class ConnectFrame extends JFrame
                     String user = username.getText();
                     view.newConnection(adress, portnr, user);
                     pack();
+                    dispose();
 	        }
 	});
         container.add(btn, "span 2");
         add(container);
+    }
+    public void location(JFrame f)
+    {
+        setLocation(f.getX() - (getWidth() - f.getWidth())/2, f.getY() + f.getHeight() + f.getHeight()/6);
+        pack();
     }
 }
 

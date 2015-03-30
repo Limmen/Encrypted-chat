@@ -40,6 +40,7 @@ public class ClientFrame extends JFrame
     DefaultListModel <ChatEntry> model;
     JPanel chatPanel;
     ChatRenderer rend = new ChatRenderer();
+    Thread thread;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
     private Font Bold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     public ClientFrame(View view, Client client)
@@ -65,7 +66,7 @@ public class ClientFrame extends JFrame
         startup();
         
         pack();
-        setLocationRelativeTo(null);    // centers on screen
+        //setLocationRelativeTo(null);    // centers on screen
         setVisible(true);
     }
     public void startup()
@@ -85,7 +86,7 @@ public class ClientFrame extends JFrame
         txt = new JLabel(client.getUsername()+":");
         txt.setFont(Bold);
         container.add(txt, "span 1");
-        entry = new JTextArea(10,20);
+        entry = new JTextArea(5,20);
         entry.setFont(Bold);
         container.add(entry, "span 1");
         btn = new JButton("Send");
@@ -96,11 +97,40 @@ public class ClientFrame extends JFrame
                 {   
                     view.newEntry(client.getUsername(), entry.getText());
                     updateChat(view.getChat());
+                    entry.setText("");
                     pack();
 	        }
 	});
-        container.add(btn, "span 2, align center");
+        container.add(btn, "span 1, align center");
+        btn = new JButton("Encrypt");
+        btn.setFont(Bold);
+        btn.addActionListener(new ActionListener() 
+        {
+	    public void actionPerformed(ActionEvent arg0) 
+                {   
+                    //entry.setText(view.encrypt(entry.getText()));
+                    pack();
+	        }
+	});
+        container.add(btn, "span 1, align center");
         add(container);
+        thread = new Thread(new Runnable() {
+            @Override public void run() {
+                while(true)
+                {
+                updateChat(view.getChat());
+                try
+            {
+            thread.sleep(10000);
+            }
+            catch(Exception e)
+            {
+                
+            }
+                }
+            }
+        });
+        thread.start();
     }
     public void updateChat(ArrayList<ChatEntry> entrys)
     {
@@ -111,7 +141,6 @@ public class ClientFrame extends JFrame
         scroll.setPreferredSize(new Dimension(300, 200));
         chatPanel.removeAll();
         chatPanel.add(scroll, "span");
-        entry.setText("");
         pack();
     }
     public DefaultListModel listModel(ArrayList<ChatEntry> entries)
@@ -122,5 +151,10 @@ public class ClientFrame extends JFrame
             model.addElement(c);
         }
         return model;
+    }
+    public void location(JFrame f)
+    {
+        setLocation(f.getX() + f.getWidth() + f.getWidth()/14, f.getY());
+        pack();
     }
 }
