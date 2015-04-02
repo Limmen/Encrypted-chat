@@ -13,6 +13,10 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import model.ChatEntry;
 import net.miginfocom.swing.MigLayout;
+<<<<<<< HEAD
+=======
+import static sun.org.mozilla.javascript.internal.ScriptRuntime.add;
+>>>>>>> my_old_master
 
 /**
  *

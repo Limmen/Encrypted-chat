@@ -20,17 +20,26 @@ public class Client extends Thread
     private int port;
     private String username;
     private Socket socket;
+<<<<<<< HEAD
     public PrintWriter out;
     BufferedReader in;
     private boolean success;
     Chat chat;
     public Client(String ip, int port, String username, Chat chat)
+=======
+    PrintWriter out;
+    BufferedReader in;
+    public Client(String ip, int port, String username)
+>>>>>>> my_old_master
     {
         this.ip = ip;
         this.port = port;
         this.username = username;
+<<<<<<< HEAD
         success = true;
         this.chat = chat;
+=======
+>>>>>>> my_old_master
     }
     @Override
     public void run()
@@ -38,6 +47,7 @@ public class Client extends Thread
             try
             {
                 socket = new Socket(ip, port);
+<<<<<<< HEAD
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
         while (true)
@@ -49,6 +59,37 @@ public class Client extends Thread
         catch(Exception e)
         {
            success = false;
+=======
+                bindStreams(socket);
+            }
+            catch(Exception e)
+            {
+                
+            }
+        while (true)
+        {
+            try
+            {
+            System.out.println("server says:" + in.readLine());
+            }
+        catch(Exception e)
+        {
+            
+        }
+        }
+    }
+    public void bindStreams(Socket socket)
+    {
+        //Bind standard streams to writer and reader.
+        try
+        {
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        }
+        catch(Exception e)
+        {
+            
+>>>>>>> my_old_master
         }
     }
     public void close(Socket socket)
@@ -65,6 +106,7 @@ public class Client extends Thread
             
         }
     }
+<<<<<<< HEAD
     public String getUsername()
     {
         return username;
@@ -72,6 +114,15 @@ public class Client extends Thread
     public boolean success()
     {
         return success;
+=======
+    public void write(String msg)
+    {
+        out.println(msg);
+    }
+    public String getUsername()
+    {
+        return username;
+>>>>>>> my_old_master
     }
     public void kill()
     {
