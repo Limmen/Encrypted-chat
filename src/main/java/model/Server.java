@@ -5,17 +5,12 @@
  */
 package model;
 
-<<<<<<< HEAD
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-=======
-import java.net.ServerSocket;
-import java.net.Socket;
->>>>>>> my_old_master
 
 /**
  *
@@ -24,7 +19,6 @@ import java.net.Socket;
 public class Server extends Thread
 {
     ServerSocket server;
-<<<<<<< HEAD
     Socket socket = new Socket();
     ChatManager cm;
     ArrayList<PrintWriter> users = new ArrayList();
@@ -32,27 +26,12 @@ public class Server extends Thread
     public Server(ChatManager cm)
     {
         this.cm = cm;
-=======
-    private int port;
-    Socket socket = new Socket();
-    ClientHandler clienthandler;
-    public Server()
-    {
-        port = 1237;
->>>>>>> my_old_master
     }
     @Override
     public void run()
     {
-<<<<<<< HEAD
       try {
          server = new ServerSocket(0); //server socket listening on port xxxx
-=======
-    while(!isInterrupted())
-    {
-      try {
-         server = new ServerSocket(port); //server socket listening on port xxxx
->>>>>>> my_old_master
          System.out.println("Server up and listening");
          while(!isInterrupted())
          {
@@ -65,40 +44,25 @@ public class Server extends Thread
                  
              }
          }
-<<<<<<< HEAD
-=======
-         
-         
->>>>>>> my_old_master
       }
       catch(Exception e) 
       {
          System.out.print("Whoops! It didn't work!\n");
       }
-<<<<<<< HEAD
     
-=======
-    }
->>>>>>> my_old_master
     }
     public void listen()
     {
         try
         {
-<<<<<<< HEAD
             handlers.add(new ClientHandler(server.accept(), this));
             
-=======
-            socket = server.accept(); //wait for client to connect.
-            clienthandler = new ClientHandler(socket);
->>>>>>> my_old_master
         }
         catch(Exception e)
         {
             
         }
     }
-<<<<<<< HEAD
     public ArrayList<PrintWriter> getUsers()
     {
         return users;
@@ -110,11 +74,6 @@ public class Server extends Thread
     public int getPort()
     {
         return server.getLocalPort();
-=======
-    public int getPort()
-    {
-        return port;
->>>>>>> my_old_master
     }
     public void kill()
     {
@@ -123,21 +82,16 @@ public class Server extends Thread
             interrupt();
             socket.close();
             server.close();
-<<<<<<< HEAD
             for(ClientHandler h : handlers)
             {
                 h.kill();
             }
-=======
-            clienthandler.kill();
->>>>>>> my_old_master
         }
         catch(Exception e)
         {
                     
         }
     }
-<<<<<<< HEAD
     private static class ClientHandler extends Thread{
         Socket socket;    
         private BufferedReader in;
@@ -195,11 +149,5 @@ public class Server extends Thread
         }
     }
     
-=======
-    public ClientHandler getclientHandler()
-    {
-        return clienthandler;
-    }
->>>>>>> my_old_master
 
 }

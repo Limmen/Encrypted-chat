@@ -14,11 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-<<<<<<< HEAD
 import model.Chat;
-=======
-import model.Server;
->>>>>>> my_old_master
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -59,10 +55,7 @@ public class ConnectFrame extends JFrame
         
         pack();
         setLocationRelativeTo(null);    // centers on screen
-<<<<<<< HEAD
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-=======
->>>>>>> my_old_master
         setVisible(true);
     }
     public void startup()
@@ -71,12 +64,9 @@ public class ConnectFrame extends JFrame
         txt = new JLabel("Create a connection to a running server");
         txt.setFont(Bold);
         container.add(txt, "span 2, align center");
-<<<<<<< HEAD
         txt = new JLabel("Localhost running on: " + view.getServerPort());
         txt.setFont(Bold);
         container.add(txt, "span 2, align center");
-=======
->>>>>>> my_old_master
         txt = new JLabel("IP adress ");
         txt.setFont(Bold);
         container.add(txt, "span 1");
@@ -104,7 +94,6 @@ public class ConnectFrame extends JFrame
                     String adress = ip.getText();
                     int portnr = Integer.parseInt(port.getText());
                     String user = username.getText();
-<<<<<<< HEAD
                     Chat chat = view.newChat(adress, portnr, user);
                     if(!chat.success())
                     {
@@ -112,11 +101,6 @@ public class ConnectFrame extends JFrame
                     }
                     pack();
                     //dispose();
-=======
-                    view.newConnection(adress, portnr, user);
-                    pack();
-                    dispose();
->>>>>>> my_old_master
 	        }
 	});
         container.add(btn, "span 2");
