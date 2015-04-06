@@ -26,10 +26,11 @@ public class Controller
     {
         this.view = view;
     }
+    /*
     public void incommingChat(Chat chat)
     {
         view.newChat(chat);
-    }
+    } */
    /* 
     public boolean checkServer()
     {
@@ -49,9 +50,9 @@ public class Controller
         chat.stopServer();
     }
     */
-    public Chat newChat(String ip, int port,  String username)
+    public Chat newChat(String ip, int port)
     {
-        return cm.newChat(ip, port, username);
+        return cm.newChat(ip, port);
     }
     public void encrypt()
     {

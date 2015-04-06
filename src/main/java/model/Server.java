@@ -23,9 +23,11 @@ public class Server extends Thread
     ChatManager cm;
     ArrayList<PrintWriter> users = new ArrayList();
     ArrayList<ClientHandler> handlers = new ArrayList();
+    int count;
     public Server(ChatManager cm)
     {
         this.cm = cm;
+        count = 0;
     }
     @Override
     public void run()
@@ -55,7 +57,8 @@ public class Server extends Thread
     {
         try
         {
-            handlers.add(new ClientHandler(server.accept(), this));
+            handlers.add(new ClientHandler(server.accept(), this, count));
+            count++;
             
         }
         catch(Exception e)
@@ -92,62 +95,4 @@ public class Server extends Thread
                     
         }
     }
-    private static class ClientHandler extends Thread{
-        Socket socket;    
-        private BufferedReader in;
-        private PrintWriter out;
-        private Server  server;
-        public ClientHandler(Socket socket, Server  server)
-        {
-            this.socket = socket;
-            this.server = server;
-            start();
-        }
-        public void run() {
-            try 
-            {
-                in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
-                server.users.add(out);
-                while(true)
-                {
-                    String input = in.readLine();
-                    if(input == null)
-                    {
-                        System.out.println("Input is null");
-                        server.getHandlers().remove(this);
-                        return;
-                    }
-                    System.out.println("Number of handlers/users in the chat: " + server.getHandlers().size());
-                    for(ClientHandler ch : server.getHandlers())
-                    {
-                        System.out.println("round");
-                        ch.printToClient(input);
-                    }
-                }
-            }
-                catch(Exception e)
-                {
-                        System.out.println("Exception!");
-                }
-        }
-        public void printToClient(String msg)
-        {
-            out.println(msg);
-        }
-        public void kill()
-        {
-            try
-            {
-                interrupt();
-            }
-            catch(Exception e)
-            {
-                    
-            }
-        }
-    }
-    
-
 }

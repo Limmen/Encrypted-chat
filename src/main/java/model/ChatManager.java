@@ -36,8 +36,17 @@ public class ChatManager
     {
             server.kill();
     }
-    public Chat newChat(String ip, int port, String username)
+    public Chat newChat(String ip, int port)
     {
-        return new Chat(ip, port, username);
+        for(Chat c : serverChats)
+        {
+            if(ip.equals(c.ip) && port == c.port)
+            {
+                return c;
+            }
+        }
+        Chat newchat = new Chat(ip, port);
+        serverChats.add(newchat);
+        return newchat;
     }
 }

@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -21,6 +22,8 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import model.Chat;
 import model.ChatEntry;
+import model.Client;
+import model.RSA;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -31,6 +34,7 @@ public class ChatFrame extends JFrame
 {
     private View view;
     private Chat chat;
+    private Client client;
     JPanel container;
     JLabel txt;
     JButton btn;
@@ -41,9 +45,10 @@ public class ChatFrame extends JFrame
     JPanel chatPanel;
     ChatRenderer rend = new ChatRenderer();
     Thread thread;
+    RSA key;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
     private Font Bold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
-    public ChatFrame(View view, Chat chat)
+    public ChatFrame(View view, Chat chat, Client client)
     {
         super("Connect");
         try 
@@ -62,7 +67,9 @@ public class ChatFrame extends JFrame
         }
         this.view = view;
         this.chat = chat;
-        chat.setFrame(this);
+        this.client = client;
+        this.key = chat.key;
+        chat.setFrame(this, client);
         this.setLayout(new MigLayout());
         startup();
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -85,15 +92,17 @@ public class ChatFrame extends JFrame
         container.add(txt, "span 2, align center");
         chatlist = new JList();
         chatlist.setCellRenderer(rend);
-        chatlist.setModel(listModel(chat.getChat()));
+        chatlist.setModel(listModel(chat.getChat(client)));
         scroll = new JScrollPane(chatlist);
         scroll.setPreferredSize(new Dimension(300, 200));
         chatPanel.add(scroll, "span");
         container.add(chatPanel, "span 2, align center");
-        txt = new JLabel(chat.getUsername()+":");
+        txt = new JLabel(client.getUsername()+":");
         txt.setFont(Bold);
         container.add(txt, "span 1");
         entry = new JTextArea(5,20);
+        entry.setWrapStyleWord(true);
+        entry.setLineWrap(true);
         entry.setFont(Bold);
         container.add(entry, "span 1");
         btn = new JButton("Send");
@@ -103,7 +112,7 @@ public class ChatFrame extends JFrame
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
                     
-                    chat.client.out.println(chat.getUsername() + " " + entry.getText());
+                    client.out.println(client.getUsername() + " " + entry.getText());
                     entry.setText("");
                     pack();
 	        }
@@ -116,11 +125,19 @@ public class ChatFrame extends JFrame
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
                     //entry.setText(view.encrypt(entry.getText()));
+                    BigInteger crypto = key.encrypt(key.createmessage(entry.getText()));
+                    System.out.println("Kryptogram: " + crypto);
+                    entry.setText(crypto.toString());
+                    BigInteger decrypted = key.decrypt(crypto);
+                    System.out.println("Decrypted bigInteger: " + decrypted);
+                    String decrypt = new String(decrypted.toByteArray());
+                    System.out.println("Decrypted string: " + decrypt);
                     pack();
 	        }
 	});
         container.add(btn, "span 1, align center");
         add(container);
+        /*
         thread = new Thread(new Runnable() {
             @Override public void run() {
                 while(true)
@@ -138,6 +155,7 @@ public class ChatFrame extends JFrame
             }
         });
         thread.start(); 
+                */
     }
     public void updateChat(ArrayList<ChatEntry> entrys)
     {
@@ -155,8 +173,8 @@ public class ChatFrame extends JFrame
         String[] someentry = msg.split(" ", 2);
         String user = someentry[0];
         String text = someentry[1];
-        chat.newEntry(user, text);
-        updateChat(chat.getChat());
+        chat.newEntry(user, text, client);
+        updateChat(chat.getChat(client));
         pack();
     }
     public DefaultListModel listModel(ArrayList<ChatEntry> entries)
@@ -175,6 +193,6 @@ public class ChatFrame extends JFrame
     }
     public void cleanUp()
     {
-        chat.cleanUp();
+        chat.cleanUp(client);
     }
 }

@@ -14,7 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import model.Chat;
+import model.Client;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -94,8 +94,8 @@ public class ConnectFrame extends JFrame
                     String adress = ip.getText();
                     int portnr = Integer.parseInt(port.getText());
                     String user = username.getText();
-                    Chat chat = view.newChat(adress, portnr, user);
-                    if(!chat.success())
+                    Client client = view.newChat(adress, portnr, user);
+                    if(!client.success())
                     {
                         //fail action.
                     }

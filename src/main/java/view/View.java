@@ -6,9 +6,8 @@
 package view;
 
 import controller.Controller;
-import java.util.ArrayList;
 import model.Chat;
-import model.ChatEntry;
+import model.Client;
 
 /**
  *
@@ -28,16 +27,18 @@ public class View
     {
         return contr.getServerPort();
     }
-    public Chat newChat(String ip, int port, String username)
+    public Client newChat(String ip, int port, String username)
     {
-        Chat chat = contr.newChat(ip, port, username);
-        if(chat.success())
+        Chat chat = contr.newChat(ip, port);
+        Client client = chat.newClient(username);
+        if(client.success())
         {
-            new ChatFrame(this, chat);
+            new ChatFrame(this, chat, client);
         }
-        return chat;
+        return client;
         
     }
+    /*
     public void newChat(Chat chat)
     {
         if(chat.success())
@@ -46,5 +47,5 @@ public class View
             new ChatFrame(this, chat);
         }
         
-    }
+    } */
 }

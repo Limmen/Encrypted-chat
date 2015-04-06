@@ -16,51 +16,48 @@ public class Chat
 {
     String ip;
     int port;
-    String username;
-    public Client client;
-    private ArrayList<ChatEntry> chatentrys = new ArrayList();
-    ChatFrame cf;
-    public Chat(String ip, int port, String username)
+    private ArrayList<Client> clients = new ArrayList();
+    public RSA key;
+    public Chat(String ip, int port)
     {
         this.ip = ip;
         this.port = port;
-        this.username = username;
-        newClient();
+        this.key = new RSA();
     }
-    public void newClient()
+    public Client newClient(String username)
     {
-        client = new Client(ip, port, username, this);
+        Client client = new Client(ip, port, username, this);
         client.start();
+        clients.add(client);
+        return client;
     }
-    public void setFrame(ChatFrame cf)
+    public void setFrame(ChatFrame frame, Client client)
     {
-        this.cf = cf;
+        client.cf = frame;
     }
-    public void updateChat(String msg)
+    public void updateChat(String msg, Client client)
     {
-        cf.updateChat(msg);
+        client.cf.updateChat(msg);
     }
-    public void newEntry(String author, String msg)
+    public void newEntry(String author, String msg, Client client)
     {
-        chatentrys.add(new ChatEntry(author, msg));
+        client.chatentrys.add(new ChatEntry(author, msg));
     }
-    public ArrayList<ChatEntry> getChat()
+    public ArrayList<ChatEntry> getChat(Client client)
     {
-        return chatentrys;
+        return client.chatentrys;
     }
-    public String getUsername()
-    {
-        return username;
-    }
-    public boolean success()
+    
+    public boolean success(Client client)
     {
         return client.success();
     }
-    public void cleanUp()
+    public void cleanUp(Client client)
     {
         client.kill();
+        clients.remove(client);
     }
-    public void send(String msg)
+    public void send(String msg, Client client)
     {
         System.out.println("send method here..");
         client.out.println(msg);

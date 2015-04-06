@@ -9,6 +9,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import view.ChatFrame;
 
 /**
  *
@@ -24,6 +26,8 @@ public class Client extends Thread
     BufferedReader in;
     private boolean success;
     Chat chat;
+    ChatFrame cf;
+    ArrayList<ChatEntry> chatentrys = new ArrayList();
     public Client(String ip, int port, String username, Chat chat)
     {
         this.ip = ip;
@@ -42,7 +46,12 @@ public class Client extends Thread
                 out = new PrintWriter(socket.getOutputStream(), true);
         while (true)
         {
-            chat.updateChat(in.readLine());
+            String inputs  = in.readLine();
+            if(inputs == null)
+            {
+                System.out.println("Connections was lost here, " + username);
+            }
+            chat.updateChat(inputs, this);
             System.out.println(username + " received a message!");
         }
             }
