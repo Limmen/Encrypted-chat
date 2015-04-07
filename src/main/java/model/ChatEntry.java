@@ -12,11 +12,11 @@ package model;
 public class ChatEntry 
 {
     private String author;
-    private String msg;
+    private String msg;;
     
     public ChatEntry(String author, String msg)
     {
-        this.author = author;
+        this.author = author + ":";
         this.msg = msg;
     }
     public String getAuthor()

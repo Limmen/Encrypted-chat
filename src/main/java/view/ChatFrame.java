@@ -39,11 +39,11 @@ public class ChatFrame extends JFrame
     JLabel txt;
     JButton btn;
     JTextArea entry;
-    JList chatlist;
+    //JList chatlist;
     JScrollPane scroll;
     DefaultListModel <ChatEntry> model;
     JPanel chatPanel;
-    ChatRenderer rend = new ChatRenderer();
+    JPanel entrypanels;
     Thread thread;
     RSA key;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
@@ -90,10 +90,8 @@ public class ChatFrame extends JFrame
         txt = new JLabel("Chat");
         txt.setFont(Bold);
         container.add(txt, "span 2, align center");
-        chatlist = new JList();
-        chatlist.setCellRenderer(rend);
-        chatlist.setModel(listModel(chat.getChat(client)));
-        scroll = new JScrollPane(chatlist);
+        entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
+        scroll = new JScrollPane(entrypanels);
         scroll.setPreferredSize(new Dimension(300, 200));
         chatPanel.add(scroll, "span");
         container.add(chatPanel, "span 2, align center");
@@ -137,32 +135,11 @@ public class ChatFrame extends JFrame
 	});
         container.add(btn, "span 1, align center");
         add(container);
-        /*
-        thread = new Thread(new Runnable() {
-            @Override public void run() {
-                while(true)
-                {
-                updateChat(chat.getChat());
-                try
-            {
-            thread.sleep(10000);
-            }
-            catch(Exception e)
-            {
-                
-            }
-                }
-            }
-        });
-        thread.start(); 
-                */
     }
     public void updateChat(ArrayList<ChatEntry> entrys)
     {
-        chatlist = new JList();
-        chatlist.setCellRenderer(rend);
-        chatlist.setModel(listModel(entrys));
-        scroll = new JScrollPane(chatlist);
+        entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
+        scroll = new JScrollPane(entrypanels);
         scroll.setPreferredSize(new Dimension(300, 200));
         chatPanel.removeAll();
         chatPanel.add(scroll, "span");
@@ -177,15 +154,6 @@ public class ChatFrame extends JFrame
         updateChat(chat.getChat(client));
         pack();
     }
-    public DefaultListModel listModel(ArrayList<ChatEntry> entries)
-    {
-        model = new DefaultListModel();
-        for (ChatEntry c : entries)
-        {
-            model.addElement(c);
-        }
-        return model;
-    }
     public void location(JFrame f)
     {
         setLocation(f.getX() + f.getWidth() + f.getWidth()/14, f.getY());
@@ -194,5 +162,30 @@ public class ChatFrame extends JFrame
     public void cleanUp()
     {
         chat.cleanUp(client);
+    }
+    public String decrypt(String crypto)
+    {
+        BigInteger crypt;
+        try
+        {
+            crypt = new BigInteger(crypto);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+        BigInteger decrypted = key.decrypt(crypt);
+        String decrypt = new String(decrypted.toByteArray());
+        return decrypt;
+    }
+    public JPanel genChat(JPanel panel)
+    {
+        ArrayList<ChatEntry> entrys = chat.getChat(client);
+        for(ChatEntry e : entrys)
+        {
+            JPanel entry = new EntryPanel(this, e);
+            panel.add(entry, "span 1");
+        }
+        return panel;
     }
 }
