@@ -5,11 +5,12 @@
  */
 package model;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
     
 
-public class RSA 
+public class RSA implements Serializable
 {
    /*BigInteger class provides methods for modular arithmetic,
     prime number generation etc.
@@ -20,15 +21,15 @@ public class RSA
    private BigInteger d;
    private BigInteger e;
    private BigInteger n;
-   private int N;
+   private int bits;
 
    // generate an N-bit (roughly) public and private key
    public RSA() {
-       this.N = 2048;
+       this.bits = 2048;
       /*returns a positive BigInteger that is probably prime, 
        with the specified bitLength. (bitLength = N/2 */
-      BigInteger p = BigInteger.probablePrime(N/2, random);
-      BigInteger q = BigInteger.probablePrime(N/2, random);
+      BigInteger p = BigInteger.probablePrime(bits/2, random);
+      BigInteger q = BigInteger.probablePrime(bits/2, random);
       //Calculate phi. (1 < e < phi, e and phi needs to be relative prime)
       BigInteger phi = (p.subtract(one)).multiply(q.subtract(one));
 

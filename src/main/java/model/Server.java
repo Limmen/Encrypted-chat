@@ -24,9 +24,11 @@ public class Server extends Thread
     ArrayList<PrintWriter> users = new ArrayList();
     ArrayList<ClientHandler> handlers = new ArrayList();
     int count;
+    public RSA key;
     public Server(ChatManager cm)
     {
         this.cm = cm;
+        this.key = new RSA();
         count = 0;
     }
     @Override

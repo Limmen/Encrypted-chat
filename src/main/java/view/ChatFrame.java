@@ -45,9 +45,11 @@ public class ChatFrame extends JFrame
     JPanel chatPanel;
     JPanel entrypanels;
     Thread thread;
-    RSA key;
+    public RSA key;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
-    private Font Bold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font Plain = new Font("Serif", Font.PLAIN, 12);
+    private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     public ChatFrame(View view, Chat chat, Client client)
     {
         super("Connect");
@@ -68,7 +70,7 @@ public class ChatFrame extends JFrame
         this.view = view;
         this.chat = chat;
         this.client = client;
-        this.key = chat.key;
+        //this.key = chat.key;
         chat.setFrame(this, client);
         this.setLayout(new MigLayout());
         startup();
@@ -88,7 +90,7 @@ public class ChatFrame extends JFrame
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
         txt = new JLabel("Chat");
-        txt.setFont(Bold);
+        txt.setFont(PBold);
         container.add(txt, "span 2, align center");
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
         scroll = new JScrollPane(entrypanels);
@@ -96,15 +98,15 @@ public class ChatFrame extends JFrame
         chatPanel.add(scroll, "span");
         container.add(chatPanel, "span 2, align center");
         txt = new JLabel(client.getUsername()+":");
-        txt.setFont(Bold);
+        txt.setFont(PBold);
         container.add(txt, "span 1");
         entry = new JTextArea(5,20);
         entry.setWrapStyleWord(true);
         entry.setLineWrap(true);
-        entry.setFont(Bold);
+        entry.setFont(Plain);
         container.add(entry, "span 1");
         btn = new JButton("Send");
-        btn.setFont(Bold);
+        btn.setFont(PBold);
         btn.addActionListener(new ActionListener() 
         {
 	    public void actionPerformed(ActionEvent arg0) 
@@ -117,7 +119,7 @@ public class ChatFrame extends JFrame
 	});
         container.add(btn, "span 1, align center");
         btn = new JButton("Encrypt");
-        btn.setFont(Bold);
+        btn.setFont(PBold);
         btn.addActionListener(new ActionListener() 
         {
 	    public void actionPerformed(ActionEvent arg0) 

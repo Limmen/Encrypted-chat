@@ -23,9 +23,12 @@ import net.miginfocom.swing.MigLayout;
 public class EntryPanel extends JPanel
 {
 
-    private Font Italic = new Font("Serif", Font.ITALIC, 12);
     private Font smallItalic = new Font("Serif", Font.ITALIC, 10);
-    private Font Bold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font smallPlain = new Font("Serif", Font.PLAIN, 10);
+    private Font Italic = new Font("Serif", Font.ITALIC, 12);
+    private Font Plain = new Font("Serif", Font.PLAIN, 12);
+    private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     ChatFrame cf;
     JLabel txt;
     public EntryPanel(ChatFrame cf, ChatEntry entry)
@@ -34,7 +37,7 @@ public class EntryPanel extends JPanel
         
         setLayout(new MigLayout("wrap 3"));
         JButton decrypt = new JButton("Decrypt");
-        decrypt.setFont(smallItalic);
+        decrypt.setFont(smallPlain);
         decrypt.addActionListener(new ActionListener() 
         {
 	    public void actionPerformed(ActionEvent arg0) 
@@ -46,9 +49,10 @@ public class EntryPanel extends JPanel
 	});
         add(decrypt, "span 1");
         txt = new JLabel(entry.getAuthor());
-        txt.setFont(Bold);
+        txt.setFont(PBold);
         add(txt, "span 1, gap 20");
         txt = new JLabel(entry.getMsg());
+        txt.setFont(Plain);
         add(txt,"span 1");
         setBackground(Color.WHITE); 
     }

@@ -7,6 +7,7 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -23,11 +24,13 @@ public class Client extends Thread
     private String username;
     private Socket socket;
     public PrintWriter out;
-    BufferedReader in;
+    private BufferedReader in;
+    private ObjectInputStream objectIn;
     private boolean success;
     Chat chat;
     ChatFrame cf;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
+    
     public Client(String ip, int port, String username, Chat chat)
     {
         this.ip = ip;
@@ -44,6 +47,9 @@ public class Client extends Thread
                 socket = new Socket(ip, port);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
+                objectIn = new ObjectInputStream(socket.getInputStream());
+                RSA key = (RSA)objectIn.readObject();
+                cf.key = key;
         while (true)
         {
             String inputs  = in.readLine();

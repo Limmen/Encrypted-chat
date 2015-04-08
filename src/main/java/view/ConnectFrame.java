@@ -31,7 +31,9 @@ public class ConnectFrame extends JFrame
     JTextField port;
     JTextField username;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
-    private Font Bold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font Plain = new Font("Serif", Font.PLAIN, 12);
+    private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
+    private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     public ConnectFrame(View view)
     {
         super("Connect");
@@ -62,31 +64,31 @@ public class ConnectFrame extends JFrame
     {
         container = new JPanel(new MigLayout("wrap 2"));
         txt = new JLabel("Create a connection to a running server");
-        txt.setFont(Bold);
+        txt.setFont(Plain);
         container.add(txt, "span 2, align center");
-        txt = new JLabel("Localhost running on: " + view.getServerPort());
-        txt.setFont(Bold);
+        txt = new JLabel("Localhost running on port: " + view.getServerPort());
+        txt.setFont(Plain);
         container.add(txt, "span 2, align center");
         txt = new JLabel("IP adress ");
-        txt.setFont(Bold);
+        txt.setFont(Plain);
         container.add(txt, "span 1");
         ip = new JTextField(30);
-        ip.setFont(Bold);
+        ip.setFont(Plain);
         container.add(ip, "span 1");
         txt = new JLabel("Port");
-        txt.setFont(Bold);
+        txt.setFont(Plain);
         container.add(txt, "span 1");
         port = new JTextField(30);
-        port.setFont(Bold);
+        port.setFont(Plain);
         container.add(port, "span 1");
         txt = new JLabel("Chat username");
-        txt.setFont(Bold);
+        txt.setFont(Plain);
         container.add(txt, "span 1");
         username = new JTextField(30);
-        username.setFont(Bold);
+        username.setFont(Plain);
         container.add(username, "span 1");
         btn = new JButton("Connect");
-        btn.setFont(Bold);
+        btn.setFont(PBold);
         btn.addActionListener(new ActionListener() 
         {
 	    public void actionPerformed(ActionEvent arg0) 
