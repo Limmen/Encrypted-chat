@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import java.io.BufferedReader;
@@ -11,6 +6,10 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ *This class represents the server-side of a connection with a user in the chat.
+ * @author kim
+ */
 public class ClientHandler extends Thread{
         Socket socket;    
         private BufferedReader in;
@@ -33,34 +32,31 @@ public class ClientHandler extends Thread{
                 out = new PrintWriter(socket.getOutputStream(), true);
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
                 server.users.add(out);
+                sleep(250);
                 objectOut.writeObject(server.key);
                 while(true)
                 {
                     String input = in.readLine();
                     if(input == null)
                     {
-                        System.out.println("Clienthandler Input is null");
+                        //Client left the chat.
                         server.getHandlers().remove(this);
                         return;
                     }
-                    System.out.println("Number of handlers/users in the chat: " + server.getHandlers().size());
                     for(ClientHandler ch : server.getHandlers())
                     {
-                        System.out.println("sleep");
                         ch.printToClient(input);
                         sleep(1000);
-                        System.out.println("wakeup");
                     }
                 }
             }
                 catch(Exception e)
                 {
-                        System.out.println("Exception!");
+                        System.out.println("There was a error with the socket connection");
                 }
         }
         public void printToClient(String msg)
         {
-            System.out.println("Printing to client, clienthandler nr is: " + nr);
             out.println(msg);
         }
         public void kill()

@@ -1,15 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
     
-
+/**
+ *This class is used for RSA encryption.
+ * @author kim
+ */
 public class RSA implements Serializable
 {
    /*BigInteger class provides methods for modular arithmetic,
@@ -59,7 +57,6 @@ public class RSA implements Serializable
    public BigInteger createmessage(String input)
    {
        BigInteger message = new BigInteger(input.getBytes());
-       System.out.println("message to encrypt: " + message.toString());
        return message;
    }
    

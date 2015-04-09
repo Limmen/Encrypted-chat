@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package view;
 
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,7 +15,7 @@ import model.Client;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *
+ *This class is a frame for connecting to a running server and start a chat.
  * @author kim
  */
 public class ConnectFrame extends JFrame
@@ -96,13 +93,24 @@ public class ConnectFrame extends JFrame
                     String adress = ip.getText();
                     int portnr = Integer.parseInt(port.getText());
                     String user = username.getText();
-                    Client client = view.newChat(adress, portnr, user);
-                    if(!client.success())
+                    Pattern pattern = Pattern.compile("\\s");
+                    Matcher matcher = pattern.matcher(user);
+                    boolean found = matcher.find();
+                    if(found)
                     {
-                        //fail action.
+                        username.setText("Username can not contain whitespaces");
+                        return;
                     }
+                    Client client = view.newChat(adress, portnr, user);
+                    if(client == null)
+                    {
+                        username.setText("Username already taken in that chatroom.");
+                        return;
+                    }
+                    ip.setText("");
+                    port.setText("");
+                    username.setText("");
                     pack();
-                    //dispose();
 	        }
 	});
         container.add(btn, "span 2");

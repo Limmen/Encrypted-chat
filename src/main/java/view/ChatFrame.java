@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package view;
 
 import java.awt.Dimension;
@@ -11,11 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -27,7 +22,7 @@ import model.RSA;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *
+ *This clas represents a chatframe for a existing connection of a client and a server.
  * @author kim
  */
 public class ChatFrame extends JFrame
@@ -39,12 +34,12 @@ public class ChatFrame extends JFrame
     JLabel txt;
     JButton btn;
     JTextArea entry;
-    //JList chatlist;
     JScrollPane scroll;
     DefaultListModel <ChatEntry> model;
     JPanel chatPanel;
     JPanel entrypanels;
     Thread thread;
+    private String name;
     public RSA key;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
@@ -52,7 +47,8 @@ public class ChatFrame extends JFrame
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     public ChatFrame(View view, Chat chat, Client client)
     {
-        super("Connect");
+        super(client.username + " " + client.ip + " " + client.port);
+        name = client.username + " " + client.ip + " " + client.port; 
         try 
         {
         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) 
@@ -70,7 +66,6 @@ public class ChatFrame extends JFrame
         this.view = view;
         this.chat = chat;
         this.client = client;
-        //this.key = chat.key;
         chat.setFrame(this, client);
         this.setLayout(new MigLayout());
         startup();
@@ -81,8 +76,9 @@ public class ChatFrame extends JFrame
                 cleanUp();
             }
         });
+        Random random = new Random();
+        this.setLocation(random.nextInt(200), random.nextInt(200));
         pack();
-        //setLocationRelativeTo(null);    // centers on screen
         setVisible(true);
     }
     public void startup()
@@ -124,14 +120,8 @@ public class ChatFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
-                    //entry.setText(view.encrypt(entry.getText()));
                     BigInteger crypto = key.encrypt(key.createmessage(entry.getText()));
-                    System.out.println("Kryptogram: " + crypto);
                     entry.setText(crypto.toString());
-                    BigInteger decrypted = key.decrypt(crypto);
-                    System.out.println("Decrypted bigInteger: " + decrypted);
-                    String decrypt = new String(decrypted.toByteArray());
-                    System.out.println("Decrypted string: " + decrypt);
                     pack();
 	        }
 	});
@@ -189,5 +179,10 @@ public class ChatFrame extends JFrame
             panel.add(entry, "span 1");
         }
         return panel;
+    }
+    public void lostConnection()
+    {
+        new ErrorFrame(name);
+        dispose();
     }
 }

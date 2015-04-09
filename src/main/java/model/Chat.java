@@ -1,15 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import java.util.ArrayList;
 import view.ChatFrame;
 
 /**
- *
+ *This class represents a chat consisting of clients and a server.
+ * This class works as a interface between GUI and the socket.
  * @author kim
  */
 public class Chat 
@@ -17,12 +13,10 @@ public class Chat
     String ip;
     int port;
     private ArrayList<Client> clients = new ArrayList();
-    public RSA key;
     public Chat(String ip, int port)
     {
         this.ip = ip;
         this.port = port;
-        this.key = new RSA();
     }
     public Client newClient(String username)
     {
@@ -47,11 +41,6 @@ public class Chat
     {
         return client.chatentrys;
     }
-    
-    public boolean success(Client client)
-    {
-        return client.success();
-    }
     public void cleanUp(Client client)
     {
         client.kill();
@@ -59,7 +48,17 @@ public class Chat
     }
     public void send(String msg, Client client)
     {
-        System.out.println("send method here..");
         client.out.println(msg);
+    }
+    public boolean checkUsername(String username)
+    {
+        for (Client client : clients)
+        {
+            if(client.username.equalsIgnoreCase(username))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,15 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import controller.Controller;
 import java.util.ArrayList;
 
 /**
- *
+ *This class is a manager that handles all of the ongoing chats for the localhost.
  * @author kim
  */
 public class ChatManager 
@@ -36,13 +31,20 @@ public class ChatManager
     {
             server.kill();
     }
-    public Chat newChat(String ip, int port)
+    public Chat newChat(String ip, int port, String username)
     {
         for(Chat c : serverChats)
         {
             if(ip.equals(c.ip) && port == c.port)
             {
-                return c;
+                if(c.checkUsername(username))
+                {
+                    return c;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
         Chat newchat = new Chat(ip, port);

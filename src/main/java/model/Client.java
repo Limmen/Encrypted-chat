@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import java.io.BufferedReader;
@@ -14,19 +9,19 @@ import java.util.ArrayList;
 import view.ChatFrame;
 
 /**
- *
+ *This class represents a chat user (client) and the corresponding socket connection
+ * with a server.
  * @author kim
  */
 public class Client extends Thread 
 {
-    private String ip;
-    private int port;
-    private String username;
+    public String ip;
+    public int port;
+    public String username;
     private Socket socket;
     public PrintWriter out;
     private BufferedReader in;
     private ObjectInputStream objectIn;
-    private boolean success;
     Chat chat;
     ChatFrame cf;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
@@ -36,7 +31,6 @@ public class Client extends Thread
         this.ip = ip;
         this.port = port;
         this.username = username;
-        success = true;
         this.chat = chat;
     }
     @Override
@@ -55,24 +49,22 @@ public class Client extends Thread
             String inputs  = in.readLine();
             if(inputs == null)
             {
-                System.out.println("Connections was lost here, " + username);
+                //Connection to Server was lost
+                cf.lostConnection();
+                kill();
             }
             chat.updateChat(inputs, this);
-            System.out.println(username + " received a message!");
         }
             }
         catch(Exception e)
         {
-           success = false;
         }
     }
     public void close(Socket socket)
     {
-        System.out.println("Shutting down socket");
         out.close();
         try
         {
-            socket.close();
             socket.close();
         }
         catch(Exception e)
@@ -84,18 +76,14 @@ public class Client extends Thread
     {
         return username;
     }
-    public boolean success()
-    {
-        return success;
-    }
     public void kill()
     {
-        System.out.println("Shutting down socket");
         try
         {
             out.close();
             in.close();
             socket.close();
+            interrupt();
         }
         catch(Exception e)
         {

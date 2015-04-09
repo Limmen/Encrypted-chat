@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import java.io.BufferedReader;
@@ -13,7 +8,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 /**
- *
+ *This class represents the server running on localhost.
+ * For every new user connecting a clienthandler thread is created.
  * @author kim
  */
 public class Server extends Thread
@@ -36,7 +32,6 @@ public class Server extends Thread
     {
       try {
          server = new ServerSocket(0); //server socket listening on port xxxx
-         System.out.println("Server up and listening");
          while(!isInterrupted())
          {
              try
@@ -51,7 +46,7 @@ public class Server extends Thread
       }
       catch(Exception e) 
       {
-         System.out.print("Whoops! It didn't work!\n");
+         System.out.print("There was a error with the local server \n");
       }
     
     }
