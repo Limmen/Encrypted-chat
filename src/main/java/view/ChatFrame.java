@@ -35,6 +35,7 @@ public class ChatFrame extends JFrame
     JButton btn;
     JTextArea entry;
     JScrollPane scroll;
+    JScrollPane scroll2;
     DefaultListModel <ChatEntry> model;
     JPanel chatPanel;
     JPanel entrypanels;
@@ -90,17 +91,21 @@ public class ChatFrame extends JFrame
         container.add(txt, "span 2, align center");
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
         scroll = new JScrollPane(entrypanels);
-        scroll.setPreferredSize(new Dimension(300, 200));
+        scroll.setPreferredSize(new Dimension(500, 300));
         chatPanel.add(scroll, "span");
         container.add(chatPanel, "span 2, align center");
+        JPanel panel = new JPanel(new MigLayout("wrap 2"));
         txt = new JLabel(client.getUsername()+":");
         txt.setFont(PBold);
-        container.add(txt, "span 1");
-        entry = new JTextArea(5,20);
+        panel.add(txt, "span 1");
+        entry = new JTextArea(5,30);
         entry.setWrapStyleWord(true);
         entry.setLineWrap(true);
         entry.setFont(Plain);
-        container.add(entry, "span 1");
+        scroll2 = new JScrollPane(entry);
+        panel.add(scroll2, "span 1");
+        container.add(panel, "span");
+        panel = new JPanel(new MigLayout("wrap 2"));
         btn = new JButton("Send");
         btn.setFont(PBold);
         btn.addActionListener(new ActionListener() 
@@ -113,7 +118,7 @@ public class ChatFrame extends JFrame
                     pack();
 	        }
 	});
-        container.add(btn, "span 1, align center");
+        panel.add(btn, "span 1");
         btn = new JButton("Encrypt");
         btn.setFont(PBold);
         btn.addActionListener(new ActionListener() 
@@ -125,14 +130,18 @@ public class ChatFrame extends JFrame
                     pack();
 	        }
 	});
-        container.add(btn, "span 1, align center");
+        panel.add(btn, "span 1");
+        container.add(panel, "span 2");
+        txt = new JLabel("Copyright \u00a9, Kim Hammar all rights reserved");
+        txt.setFont(Plain);
+        container.add(txt, "span 1, gaptop 20");
         add(container);
     }
     public void updateChat(ArrayList<ChatEntry> entrys)
     {
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
         scroll = new JScrollPane(entrypanels);
-        scroll.setPreferredSize(new Dimension(300, 200));
+        scroll.setPreferredSize(new Dimension(500, 300));
         chatPanel.removeAll();
         chatPanel.add(scroll, "span");
         pack();
