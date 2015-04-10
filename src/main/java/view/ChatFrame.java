@@ -94,7 +94,7 @@ public class ChatFrame extends JFrame
     {
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
-        txt = new JLabel("Chat (" + client.ip + client.port +  ")");
+        txt = new JLabel("Chat (" + client.ip + "  " + client.port +  ")");
         txt.setFont(TBold);
         container.add(txt, "span 2, align center");
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
