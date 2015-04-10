@@ -1,7 +1,5 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,7 +17,7 @@ public class Server extends Thread
     ChatManager cm;
     ArrayList<PrintWriter> users = new ArrayList();
     ArrayList<ClientHandler> handlers = new ArrayList();
-    ArrayList<String> usernames = new ArrayList();
+    ArrayList <ChatRoomEntry> chatroomEntrys = new ArrayList();
     int count;
     public RSA key;
     public Server(ChatManager cm)

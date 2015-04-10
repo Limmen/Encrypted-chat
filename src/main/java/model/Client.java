@@ -46,6 +46,8 @@ public class Client extends Thread
                 cf.key = key;
                 sleep(100);
                 out.println(username);
+                sleep(50);
+                out.println(ip);
         while (true)
         {
             String inputs  = in.readLine();
@@ -57,7 +59,7 @@ public class Client extends Thread
             }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
             {
-                ArrayList<String> users = (ArrayList<String>)objectIn.readObject();
+                ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
                 cf.updateUsers(users);
                 continue;
             }

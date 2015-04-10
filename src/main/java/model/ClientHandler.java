@@ -35,7 +35,8 @@ public class ClientHandler extends Thread{
                 sleep(250);
                 objectOut.writeObject(server.key);
                 String user = in.readLine();
-                server.usernames.add(user);
+                String ip = in.readLine();
+                server.chatroomEntrys.add(new ChatRoomEntry(user, ip));
                 updateUsers();
                 while(true)
                 {
@@ -92,7 +93,7 @@ public class ClientHandler extends Thread{
             for(ClientHandler ch : server.getHandlers())
                     {
                         ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
-                        ch.printToClient(server.usernames);
+                        ch.printToClient(server.chatroomEntrys);
                         sleep(500);
                     }
             }

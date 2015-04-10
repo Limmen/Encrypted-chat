@@ -18,6 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import model.Chat;
 import model.ChatEntry;
+import model.ChatRoomEntry;
 import model.Client;
 import model.RSA;
 import net.miginfocom.swing.MigLayout;
@@ -46,11 +47,13 @@ public class ChatFrame extends JFrame
     Thread thread;
     private String name;
     public RSA key;
+    private Font Title = new Font("Serif", Font.PLAIN, 20);
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
-    private ArrayList<String> users = new ArrayList();
+    private Font TBold = Title.deriveFont(Title.getStyle() | Font.BOLD);
+    private ArrayList<ChatRoomEntry> users = new ArrayList();
     public ChatFrame(View view, Chat chat, Client client)
     {
         super(client.username + " " + client.ip + " " + client.port);
@@ -91,8 +94,8 @@ public class ChatFrame extends JFrame
     {
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
-        txt = new JLabel("Chat");
-        txt.setFont(PBold);
+        txt = new JLabel("Chat (" + client.ip + client.port +  ")");
+        txt.setFont(TBold);
         container.add(txt, "span 2, align center");
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
@@ -101,7 +104,7 @@ public class ChatFrame extends JFrame
         chatPanel.add(scroll, "span");
         
         usersPanel = new JPanel(new MigLayout("wrap 1"));
-        txt = new JLabel("Users");
+        txt = new JLabel("Users in the chatroom");
         txt.setFont(PBold);
         usersPanel.add(txt,"span");
         extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
@@ -173,7 +176,7 @@ public class ChatFrame extends JFrame
         updateChat(chat.getChat(client));
         pack();
     }
-     public void updateUsers(ArrayList<String> users)
+     public void updateUsers(ArrayList<ChatRoomEntry> users)
     {
         this.users = users;
         usersPanel.remove(usersScroll);
@@ -219,9 +222,9 @@ public class ChatFrame extends JFrame
     }
     public JPanel genUsers(JPanel panel)
     {
-        for(String e : users)
+        for(ChatRoomEntry e : users)
         {
-            JPanel user = new UserPanel(this, e);
+            JPanel user = new UserPanel(this, e.username, e.ip);
             panel.add(user, "span 1");
         }
         return panel;

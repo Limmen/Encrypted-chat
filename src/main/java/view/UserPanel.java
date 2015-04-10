@@ -27,13 +27,17 @@ public class UserPanel extends JPanel
     ChatFrame cf;
     JLabel txt;
     String username;
-    public UserPanel(ChatFrame cf, String username)
+    String ip;
+    public UserPanel(ChatFrame cf, String username, String ip)
     {
         this.cf = cf;
         this.username = username;
         
-        setLayout(new MigLayout("wrap 1"));
+        setLayout(new MigLayout("wrap 2"));
         txt = new JLabel(username);
+        txt.setFont(Plain);
+        add(txt, "span 1");
+        txt = new JLabel("(" + ip + ")");
         txt.setFont(Plain);
         add(txt, "span 1");
         setBackground(Color.WHITE); 
