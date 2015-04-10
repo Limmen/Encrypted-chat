@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -36,9 +37,12 @@ public class ChatFrame extends JFrame
     JTextArea entry;
     JScrollPane scroll;
     JScrollPane scroll2;
+    JScrollPane usersScroll;
     DefaultListModel <ChatEntry> model;
     JPanel chatPanel;
     JPanel entrypanels;
+    JPanel extraPanel;
+    JPanel usersPanel;
     Thread thread;
     private String name;
     public RSA key;
@@ -46,6 +50,7 @@ public class ChatFrame extends JFrame
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
+    private ArrayList<String> users = new ArrayList();
     public ChatFrame(View view, Chat chat, Client client)
     {
         super(client.username + " " + client.ip + " " + client.port);
@@ -89,16 +94,29 @@ public class ChatFrame extends JFrame
         txt = new JLabel("Chat");
         txt.setFont(PBold);
         container.add(txt, "span 2, align center");
+        JPanel panel = new JPanel(new MigLayout("wrap 2"));
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
         scroll = new JScrollPane(entrypanels);
         scroll.setPreferredSize(new Dimension(500, 300));
         chatPanel.add(scroll, "span");
-        container.add(chatPanel, "span 2, align center");
-        JPanel panel = new JPanel(new MigLayout("wrap 2"));
+        
+        usersPanel = new JPanel(new MigLayout("wrap 1"));
+        txt = new JLabel("Users");
+        txt.setFont(PBold);
+        usersPanel.add(txt,"span");
+        extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
+        usersScroll = new JScrollPane(extraPanel);
+        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersPanel.add(usersScroll, "span");
+        
+        panel.add(chatPanel, "span 1");
+        panel.add(usersPanel, "span 1");
+        container.add(panel, "span");
+        panel = new JPanel(new MigLayout("wrap 2"));
         txt = new JLabel(client.getUsername()+":");
         txt.setFont(PBold);
         panel.add(txt, "span 1");
-        entry = new JTextArea(5,30);
+        entry = new JTextArea(5,50);
         entry.setWrapStyleWord(true);
         entry.setLineWrap(true);
         entry.setFont(Plain);
@@ -132,10 +150,10 @@ public class ChatFrame extends JFrame
 	});
         panel.add(btn, "span 1");
         container.add(panel, "span 2");
-        txt = new JLabel("Copyright \u00a9, Kim Hammar all rights reserved");
+        txt = new JLabel("Copyright \u00a9 Kim Hammar all rights reserved");
         txt.setFont(Plain);
         container.add(txt, "span 1, gaptop 20");
-        add(container);
+        add(container, BorderLayout.CENTER);
     }
     public void updateChat(ArrayList<ChatEntry> entrys)
     {
@@ -153,6 +171,16 @@ public class ChatFrame extends JFrame
         String text = someentry[1];
         chat.newEntry(user, text, client);
         updateChat(chat.getChat(client));
+        pack();
+    }
+     public void updateUsers(ArrayList<String> users)
+    {
+        this.users = users;
+        usersPanel.remove(usersScroll);
+        extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
+        usersScroll = new JScrollPane(extraPanel);
+        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersPanel.add(usersScroll, "span");
         pack();
     }
     public void location(JFrame f)
@@ -186,6 +214,15 @@ public class ChatFrame extends JFrame
         {
             JPanel entry = new EntryPanel(this, e);
             panel.add(entry, "span 1");
+        }
+        return panel;
+    }
+    public JPanel genUsers(JPanel panel)
+    {
+        for(String e : users)
+        {
+            JPanel user = new UserPanel(this, e);
+            panel.add(user, "span 1");
         }
         return panel;
     }

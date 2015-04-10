@@ -19,6 +19,7 @@ public class Server extends Thread
     ChatManager cm;
     ArrayList<PrintWriter> users = new ArrayList();
     ArrayList<ClientHandler> handlers = new ArrayList();
+    ArrayList<String> usernames = new ArrayList();
     int count;
     public RSA key;
     public Server(ChatManager cm)

@@ -1,5 +1,6 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -114,10 +115,10 @@ public class ConnectFrame extends JFrame
 	        }
 	});
         container.add(btn, "span 2");
-        txt = new JLabel("Copyright \u00a9, Kim Hammar all rights reserved");
+        txt = new JLabel("Copyright \u00a9 Kim Hammar all rights reserved");
         txt.setFont(Plain);
         container.add(txt, "span 2, gaptop 20");
-        add(container);
+        add(container, BorderLayout.CENTER);
     }
     public void location(JFrame f)
     {

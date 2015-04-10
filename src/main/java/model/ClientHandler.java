@@ -34,9 +34,13 @@ public class ClientHandler extends Thread{
                 server.users.add(out);
                 sleep(250);
                 objectOut.writeObject(server.key);
+                String user = in.readLine();
+                server.usernames.add(user);
+                updateUsers();
                 while(true)
                 {
                     String input = in.readLine();
+                    System.out.println("inpuut");
                     if(input == null)
                     {
                         //Client left the chat.
@@ -52,12 +56,23 @@ public class ClientHandler extends Thread{
             }
                 catch(Exception e)
                 {
-                        System.out.println("There was a error with the socket connection");
+                        e.printStackTrace();
                 }
         }
         public void printToClient(String msg)
         {
             out.println(msg);
+        }
+        public void printToClient(Object o)
+        {
+            try
+            {
+                objectOut.writeObject(o);
+            }
+            catch(Exception e)
+            {
+                
+            }
         }
         public void kill()
         {
@@ -69,5 +84,22 @@ public class ClientHandler extends Thread{
             {
                     
             }
+        }
+        public void updateUsers()
+        {
+            try
+            {
+            for(ClientHandler ch : server.getHandlers())
+                    {
+                        ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
+                        ch.printToClient(server.usernames);
+                        sleep(500);
+                    }
+            }
+                        catch(Exception e)
+                        {
+                            
+                        }
+                    
         }
     }

@@ -44,6 +44,8 @@ public class Client extends Thread
                 objectIn = new ObjectInputStream(socket.getInputStream());
                 RSA key = (RSA)objectIn.readObject();
                 cf.key = key;
+                sleep(100);
+                out.println(username);
         while (true)
         {
             String inputs  = in.readLine();
@@ -53,11 +55,19 @@ public class Client extends Thread
                 cf.lostConnection();
                 kill();
             }
+            if(inputs.equals("117 115 101 114 110 097 109 101"))
+            {
+                ArrayList<String> users = (ArrayList<String>)objectIn.readObject();
+                cf.updateUsers(users);
+                continue;
+            }
             chat.updateChat(inputs, this);
+            
         }
             }
         catch(Exception e)
         {
+            e.printStackTrace();
         }
     }
     public void close(Socket socket)
