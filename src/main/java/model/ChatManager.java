@@ -51,4 +51,8 @@ public class ChatManager
         serverChats.add(newchat);
         return newchat;
     }
+    public void cleanUp()
+    {
+        stopServer();
+    }
 }

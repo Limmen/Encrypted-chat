@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  *This class represents the server-side of a connection with a user in the chat.
@@ -17,6 +18,7 @@ public class ClientHandler extends Thread{
         private ObjectOutputStream objectOut;
         private Server  server;
         private int nr;
+        private ChatRoomEntry client;
         public ClientHandler(Socket socket, Server  server, int nr)
         {
             this.socket = socket;
@@ -36,16 +38,20 @@ public class ClientHandler extends Thread{
                 objectOut.writeObject(server.key);
                 String user = in.readLine();
                 String ip = in.readLine();
-                server.chatroomEntrys.add(new ChatRoomEntry(user, ip));
+                client = new ChatRoomEntry(user,ip);
+                System.out.println(client.username + "handler read ip and username");
+                server.chatroomEntrys.add(client);
                 updateUsers();
                 while(true)
                 {
                     String input = in.readLine();
-                    System.out.println("inpuut");
                     if(input == null)
                     {
                         //Client left the chat.
                         server.getHandlers().remove(this);
+                        server.chatroomEntrys.remove(client);
+                        updateUsers();
+                        socket.close();
                         return;
                     }
                     for(ClientHandler ch : server.getHandlers())
@@ -66,8 +72,11 @@ public class ClientHandler extends Thread{
         }
         public void printToClient(Object o)
         {
+            System.out.println("Object to print is: "  + o);
             try
             {
+                objectOut.flush();
+                objectOut.reset();
                 objectOut.writeObject(o);
             }
             catch(Exception e)
@@ -88,18 +97,20 @@ public class ClientHandler extends Thread{
         }
         public void updateUsers()
         {
+            System.out.println(client.username + "is updating the users");
             try
             {
             for(ClientHandler ch : server.getHandlers())
                     {
                         ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
+                        System.out.println("size: " + server.chatroomEntrys.size());
                         ch.printToClient(server.chatroomEntrys);
                         sleep(500);
                     }
             }
                         catch(Exception e)
                         {
-                            
+                            e.printStackTrace();
                         }
                     
         }

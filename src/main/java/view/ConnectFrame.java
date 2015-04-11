@@ -52,10 +52,17 @@ public class ConnectFrame extends JFrame
         this.view = view;
         this.setLayout(new MigLayout());
         startup();
-        
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) 
+            {
+                cleanUp();
+                System.exit(0);
+            }
+        });
         pack();
         setLocationRelativeTo(null);    // centers on screen
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
     }
     public void startup()
@@ -102,10 +109,16 @@ public class ConnectFrame extends JFrame
                         username.setText("Username can not contain whitespaces");
                         return;
                     }
-                    Client client = view.newChat(adress, portnr, user);
-                    if(client == null)
+                    int res = view.newChat(adress, portnr, user);
+                    if(res == -1)
                     {
                         username.setText("Username already taken in that chatroom.");
+                        return;
+                    }
+                    if(res == -2)
+                    {
+                        ip.setText("Could not connect");
+                        port.setText("Could not connect");
                         return;
                     }
                     ip.setText("");
@@ -124,6 +137,10 @@ public class ConnectFrame extends JFrame
     {
         setLocation(f.getX() - (getWidth() - f.getWidth())/2, f.getY() + f.getHeight() + f.getHeight()/6);
         pack();
+    }
+    public void cleanUp()
+    {
+        view.cleanUp();
     }
 }
 

@@ -78,13 +78,13 @@ public class Server extends Thread
     {
         try
         {
-            interrupt();
             socket.close();
             server.close();
             for(ClientHandler h : handlers)
             {
                 h.kill();
             }
+            interrupt();
         }
         catch(Exception e)
         {

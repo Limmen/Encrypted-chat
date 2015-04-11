@@ -22,14 +22,25 @@ public class View
     {
         return contr.getServerPort();
     }
-    public Client newChat(String ip, int port, String username)
+    public int newChat(String ip, int port, String username)
     {
         Chat chat = contr.newChat(ip, port, username);
         if(chat == null)
-            return null;
+            return -1;
+        try
+        {
         Client client = chat.newClient(username);
         new ChatFrame(this, chat, client);
-        return client;
+        }
+        catch(Exception e)
+        {
+            return -2;
+        }
+        return 0;
         
+    }
+    public void cleanUp()
+    {
+        contr.cleanUp();
     }
 }

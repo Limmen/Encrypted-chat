@@ -26,41 +26,49 @@ public class Client extends Thread
     ChatFrame cf;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     
-    public Client(String ip, int port, String username, Chat chat)
+    public Client(String ip, int port, String username, Chat chat) throws Exception
     {
         this.ip = ip;
         this.port = port;
         this.username = username;
         this.chat = chat;
+        socket = new Socket(ip, port);
     }
     @Override
     public void run()
     {
             try
             {
-                socket = new Socket(ip, port);
+                
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
                 objectIn = new ObjectInputStream(socket.getInputStream());
                 RSA key = (RSA)objectIn.readObject();
                 cf.key = key;
+                System.out.println(username + "received rsa key");
                 sleep(100);
                 out.println(username);
                 sleep(50);
                 out.println(ip);
+                System.out.println(username + "printed IP and username");
         while (true)
         {
             String inputs  = in.readLine();
             if(inputs == null)
             {
                 //Connection to Server was lost
+                System.out.println("Connection was lost , client here");
                 cf.lostConnection();
                 kill();
             }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
             {
-                ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
+                System.out.println(username + "received ascii for username");
+                Object o = objectIn.readObject();
+                ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
+               // ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
                 cf.updateUsers(users);
+                users = null;
                 continue;
             }
             chat.updateChat(inputs, this);
@@ -69,7 +77,8 @@ public class Client extends Thread
             }
         catch(Exception e)
         {
-            e.printStackTrace();
+            cf.lostConnection();
+            kill();
         }
     }
     public void close(Socket socket)
@@ -96,6 +105,7 @@ public class Client extends Thread
             in.close();
             socket.close();
             interrupt();
+            stop();
         }
         catch(Exception e)
         {

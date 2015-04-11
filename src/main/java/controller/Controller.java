@@ -26,4 +26,8 @@ public class Controller
     {
         return cm.newChat(ip, port, username);
     }
+    public void cleanUp()
+    {
+        cm.cleanUp();
+    }
 }

@@ -18,7 +18,7 @@ public class Chat
         this.ip = ip;
         this.port = port;
     }
-    public Client newClient(String username)
+    public Client newClient(String username) throws Exception
     {
         Client client = new Client(ip, port, username, this);
         client.start();

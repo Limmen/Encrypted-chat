@@ -1,18 +1,12 @@
 package view;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
-import model.Client;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -24,7 +18,7 @@ public class ErrorFrame extends JFrame
     JPanel container;
     JLabel txt;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
-    private Font Plain = new Font("Serif", Font.PLAIN, 14);
+    private Font Plain = new Font("Serif", Font.PLAIN, 18);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     public ErrorFrame(String name)
@@ -44,10 +38,10 @@ public class ErrorFrame extends JFrame
         {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
-        this.setLayout(new MigLayout());
         startup();
         
         pack();
+        setSize(150,300);
         setLocationRelativeTo(null);    // centers on screen
         setVisible(true);
     }
@@ -57,7 +51,8 @@ public class ErrorFrame extends JFrame
         txt = new JLabel("Connection was lost");
         txt.setFont(PBold);
         container.add(txt, "span 2, align center");
-        add(container);
+        container.setBackground(Color.yellow);
+        add(container, BorderLayout.CENTER);
     }
     public void location(JFrame f)
     {

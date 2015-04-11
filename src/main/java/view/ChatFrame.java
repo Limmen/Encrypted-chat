@@ -94,10 +94,15 @@ public class ChatFrame extends JFrame
     {
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
-        txt = new JLabel("Chat (" + client.ip + "  " + client.port +  ")");
-        txt.setFont(TBold);
-        container.add(txt, "span 2, align center");
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
+        txt = new JLabel("<html><font color=red>Welcome to the chatroom</font></html>");
+        txt.setFont(TBold);
+        panel.add(txt, "span 1");
+        txt = new JLabel("   ("+ client.ip + "  " + client.port +  ")");
+        txt.setFont(Plain);
+        panel.add(txt, "span 1");
+        container.add(panel, "span 2, align center");
+        panel = new JPanel(new MigLayout("wrap 2"));
         entrypanels = genChat(new JPanel(new MigLayout("wrap 1")));
         scroll = new JScrollPane(entrypanels);
         scroll.setPreferredSize(new Dimension(500, 300));
