@@ -25,12 +25,38 @@ public class UserPanel extends JPanel
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     ChatFrame cf;
+    PrivateChatFrame pc;
     JLabel txt;
     String username;
     String ip;
+    JButton btn;
     public UserPanel(ChatFrame cf, String username, String ip)
     {
         this.cf = cf;
+        this.username = username;
+        
+        setLayout(new MigLayout("wrap 3"));
+        txt = new JLabel(username);
+        txt.setFont(Plain);
+        add(txt, "span 1");
+        txt = new JLabel("(" + ip + ")");
+        txt.setFont(Plain);
+        add(txt, "span 1");
+        btn = new JButton("Private Chat");
+        btn.setFont(PBold);
+        btn.addActionListener(new ActionListener() 
+        {
+	    public void actionPerformed(ActionEvent arg0) 
+                {   
+                    requestChat();
+	        }
+	});
+        add(btn, "span 1");
+        setBackground(Color.WHITE); 
+    }
+    public UserPanel(PrivateChatFrame pc, String username, String ip)
+    {
+        this.pc = pc;
         this.username = username;
         
         setLayout(new MigLayout("wrap 2"));
@@ -41,6 +67,10 @@ public class UserPanel extends JPanel
         txt.setFont(Plain);
         add(txt, "span 1");
         setBackground(Color.WHITE); 
+    }
+    public void requestChat()
+    {
+        cf.requestChat(username);
     }
 
 }

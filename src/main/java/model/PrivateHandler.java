@@ -2,25 +2,30 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import static java.lang.Thread.sleep;
 import java.net.ServerSocket;
 import java.net.Socket;
-import view.WaitFrame;
+import java.util.ArrayList;
 
 /**
  *This class represents the server-side of a connection with a user in the chat.
  * @author kim
  */
-public class ClientHandler extends Thread{
+public class PrivateHandler extends Thread{
         Socket socket;    
         private BufferedReader in;
         private PrintWriter out;
         private ObjectOutputStream objectOut;
         private Server  server;
+        public PrivateHandler otherhandler;
         private int nr;
         private ChatRoomEntry client;
-        public ClientHandler(Socket socket, Server  server, int nr)
+        private ArrayList<ChatRoomEntry> chatRoomEntrys = new ArrayList();
+        private ObjectInputStream objectIn;
+        public PrivateHandler(Socket socket, Server  server, int nr)
         {
             this.socket = socket;
             this.server = server;
@@ -34,18 +39,26 @@ public class ClientHandler extends Thread{
                     socket.getInputStream()));
                 out = new PrintWriter(socket.getOutputStream(), true);
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
-                server.users.add(out);
-                sleep(250);
-                objectOut.writeObject(server.key);
+                objectIn = new ObjectInputStream(socket.getInputStream());
+                //sleep(250);
+                //objectOut.writeObject(server.key);
+                exchangeKeys();
+                
                 String user = in.readLine();
                 String ip = in.readLine();
                 client = new ChatRoomEntry(user,ip);
                 System.out.println(client.username + "handler read ip and username");
-                server.chatroomEntrys.add(client);
+                chatRoomEntrys.add(client);
+                if(otherhandler.client != null)
+                chatRoomEntrys.add(otherhandler.client);
+                sleep(500);
                 updateUsers();
                 while(true)
                 {
-                    System.out.println("ClientHandler waiting");
+                    if(chatRoomEntrys.size()<2 && otherhandler.client != null)
+                    {
+                        chatRoomEntrys.add(otherhandler.client);
+                    }
                     String input = in.readLine();
                     if(input == null)
                     {
@@ -56,47 +69,34 @@ public class ClientHandler extends Thread{
                         socket.close();
                         return;
                     }
-                    if(input.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
-                    {
-                        //Start wait frame for setting up private chat
-                        String privatech = in.readLine();
-                        ServerSocket privateServer = new ServerSocket(0);
-                        for(ClientHandler ch : server.getHandlers())
-                        {
-                            if(ch.client.username.equalsIgnoreCase(privatech))
-                            {
-                                String port = Integer.toString(privateServer.getLocalPort());
-                                ch.printToClient("112 114 105 118 097 116 101 032 099 104 097 116");
-                                ch.printToClient(port);
-                                sleep(100);
-                                printToClient("112 114 105 118 097 116 101 032 099 104 097 116");
-                                printToClient(port);
-                                sleep(100);
-                                ch.printToClient("send");
-                                sleep(100);
-                                printToClient("receive");
-                                PrivateHandler one = new PrivateHandler(privateServer.accept(), server, 1);
-                                sleep(100);
-                                PrivateHandler two = new PrivateHandler(privateServer.accept(), server, 1);
-                                one.otherhandler = two;
-                                two.otherhandler = one;
-                                privateServer.close();
-                                continue;
-                            }
-                        }
-                        continue;
-                    }
-                    for(ClientHandler ch : server.getHandlers())
-                    {
-                        ch.printToClient(input);
+                        printToClient(input);
                         sleep(1000);
-                    }
+                        otherhandler.printToClient(input);
+                        sleep(500);
                 }
             }
                 catch(Exception e)
                 {
                         e.printStackTrace();
                 }
+        }
+        public void exchangeKeys()
+        {
+            try
+            {
+            String input = in.readLine();
+            if(input.equalsIgnoreCase("082 083 065")) //"RSA"
+                    {
+                        System.out.println("Received ascii for RSA");
+                        RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
+                        otherhandler.printToClient(k);
+                    }
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            
         }
         public void printToClient(String msg)
         {
@@ -132,13 +132,9 @@ public class ClientHandler extends Thread{
             System.out.println(client.username + "is updating the users");
             try
             {
-            for(ClientHandler ch : server.getHandlers())
-                    {
-                        ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
-                        System.out.println("size: " + server.chatroomEntrys.size());
-                        ch.printToClient(server.chatroomEntrys);
-                        sleep(500);
-                    }
+                printToClient("117 115 101 114 110 097 109 101"); //ascii for username
+                System.out.println("size: " + chatRoomEntrys.size());
+                printToClient(chatRoomEntrys);
             }
                         catch(Exception e)
                         {

@@ -3,18 +3,19 @@ package model;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.util.ArrayList;
-import view.ChatFrame;
-import view.WaitFrame;
+import view.PrivateChatFrame;
 
 /**
  *This class represents a chat user (client) and the corresponding socket connection
  * with a server.
  * @author kim
  */
-public class Client extends Thread 
+public class PrivateClient extends Thread 
 {
     public String ip;
     public int port;
@@ -24,16 +25,38 @@ public class Client extends Thread
     private BufferedReader in;
     private ObjectInputStream objectIn;
     Chat chat;
-    ChatFrame cf;
+    private RSA key;
+    public RSAPublicKey myPublicKey;
+    public RSAPublicKey friendPublicKey;
+    PrivateChatFrame pc;
+    private ObjectOutputStream objectOut;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     
-    public Client(String ip, int port, String username, Chat chat) throws Exception
+    public PrivateClient(String ip, int port, String username, Chat chat)
     {
         this.ip = ip;
         this.port = port;
         this.username = username;
         this.chat = chat;
+        this.key = new RSA();
+        myPublicKey = key.publicKey;
+        try
+        {
         socket = new Socket(ip, port);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
+        objectOut = new ObjectOutputStream(socket.getOutputStream());
+        objectIn = new ObjectInputStream(socket.getInputStream());
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void setFrame()
+    {
+        chat.setFrame(this);
+        pc.key = this.key;
     }
     @Override
     public void run()
@@ -41,26 +64,22 @@ public class Client extends Thread
             try
             {
                 
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
-                objectIn = new ObjectInputStream(socket.getInputStream());
-                RSA key = (RSA)objectIn.readObject();
-                cf.key = key;
-                System.out.println(username + "received rsa key");
-                sleep(100);
+                //RSA key = (RSA)objectIn.readObject();
+                //pc.key = key;
+                //System.out.println(username + "received rsa key");
+                //sleep(100);
                 out.println(username);
                 sleep(50);
                 out.println(ip);
                 System.out.println(username + "printed IP and username");
         while (true)
         {
-            System.out.println("Client waiting");
             String inputs  = in.readLine();
             if(inputs == null)
             {
                 //Connection to Server was lost
                 System.out.println("Connection was lost , client here");
-                cf.lostConnection();
+                pc.lostConnection();
                 kill();
             }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
@@ -69,38 +88,14 @@ public class Client extends Thread
                 Object o = objectIn.readObject();
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
                // ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
-                cf.updateUsers(users);
+                pc.updateUsers(users);
                 users = null;
                 continue;
             }
              if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
              {
-                 System.out.println("Opening waitframe");
-                 WaitFrame wf = new WaitFrame("Setting up private chat");
-                 System.out.println("Client received ascii for private");
                  String port = in.readLine();
                  System.out.println("Client Received port: " + port);
-                 String action = in.readLine();
-                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
-                 cf.setState(cf.ICONIFIED);
-                 sleep(500);
-                 if(action.equalsIgnoreCase("send"))
-                 {
-                     sleep(200);
-                     pc.sendPublicKey();
-                     pc.receivePublicKey();
-                 }
-                 if(action.equalsIgnoreCase("receive"))
-                 {
-                     pc.receivePublicKey();
-                     sleep(200);
-                     pc.sendPublicKey();
-                 }
-                 sleep(500);
-                 wf.dispose();
-                 pc.setFrame();
-                 pc.start();
-                 continue;
              }
             chat.updateChat(inputs, this);
             
@@ -108,9 +103,38 @@ public class Client extends Thread
             }
         catch(Exception e)
         {
-            e.printStackTrace();
-            cf.lostConnection();
+            pc.lostConnection();
             kill();
+        }
+    }
+    public void sendPublicKey()
+    {
+        try
+        {
+            System.out.println("time to send key");
+            out.println("082 083 065");
+            objectOut.flush();
+            objectOut.reset();
+            objectOut.writeObject(myPublicKey);
+            System.out.println("key sent");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    public void receivePublicKey()
+    {
+        try
+        {
+            System.out.println("TIme to receive key");
+            RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
+            this.friendPublicKey = k;
+            System.out.println("Received key");
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
         }
     }
     public void close(Socket socket)

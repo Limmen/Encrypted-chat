@@ -25,6 +25,7 @@ public class EntryPanel extends JPanel
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     ChatFrame cf;
+    PrivateChatFrame pc;
     JLabel txt;
     public EntryPanel(ChatFrame cf, ChatEntry entry)
     {
@@ -51,9 +52,39 @@ public class EntryPanel extends JPanel
         add(txt,"span 1");
         setBackground(Color.WHITE); 
     }
+    public EntryPanel(PrivateChatFrame pc, ChatEntry entry)
+    {
+        this.pc = pc;
+        
+        setLayout(new MigLayout("wrap 3"));
+        JButton decrypt = new JButton("Decrypt");
+        decrypt.setFont(smallPlain);
+        decrypt.addActionListener(new ActionListener() 
+        {
+	    public void actionPerformed(ActionEvent arg0) 
+                {   
+                    String decrypted = privateDecrypt();
+                    if(decrypted != null)
+                    txt.setText(decrypted);
+	        }
+	});
+        add(decrypt, "span 1");
+        txt = new JLabel(entry.getAuthor());
+        txt.setFont(PBold);
+        add(txt, "span 1, gap 20");
+        txt = new JLabel(entry.getMsg());
+        txt.setFont(Plain);
+        add(txt,"span 1");
+        setBackground(Color.WHITE); 
+    }
     public String decrypt()
     {
         String decrypted = cf.decrypt(txt.getText());
+        return decrypted;
+    }
+    public String privateDecrypt()
+    {
+        String decrypted = pc.decrypt(txt.getText());
         return decrypted;
     }
 

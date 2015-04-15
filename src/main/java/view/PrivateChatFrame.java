@@ -19,7 +19,7 @@ import javax.swing.UIManager;
 import model.Chat;
 import model.ChatEntry;
 import model.ChatRoomEntry;
-import model.Client;
+import model.PrivateClient;
 import model.RSA;
 import net.miginfocom.swing.MigLayout;
 
@@ -27,11 +27,10 @@ import net.miginfocom.swing.MigLayout;
  *This clas represents a chatframe for a existing connection of a client and a server.
  * @author kim
  */
-public class ChatFrame extends JFrame
+public class PrivateChatFrame extends JFrame
 {
-    private View view;
     private Chat chat;
-    private Client client;
+    private PrivateClient client;
     JPanel container;
     JLabel txt;
     JButton btn;
@@ -54,7 +53,7 @@ public class ChatFrame extends JFrame
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     private Font TBold = Title.deriveFont(Title.getStyle() | Font.BOLD);
     private ArrayList<ChatRoomEntry> users = new ArrayList();
-    public ChatFrame(View view, Chat chat, Client client)
+    public PrivateChatFrame(Chat chat, PrivateClient client)
     {
         super(client.username + " " + client.ip + " " + client.port);
         name = client.username + " " + client.ip + " " + client.port; 
@@ -72,10 +71,9 @@ public class ChatFrame extends JFrame
         {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
-        this.view = view;
         this.chat = chat;
         this.client = client;
-        chat.setFrame(this, client);
+        //chat.setFrame(this, client);
         this.setLayout(new MigLayout());
         startup();
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -95,7 +93,7 @@ public class ChatFrame extends JFrame
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
-        txt = new JLabel("<html><font color=red>Welcome to the public chatroom</font></html>");
+        txt = new JLabel("<html><font color=red>Private chat with: </font></html>");
         txt.setFont(TBold);
         panel.add(txt, "span 1");
         txt = new JLabel("   ("+ client.ip + "  " + client.port +  ")");
@@ -211,7 +209,7 @@ public class ChatFrame extends JFrame
         {
             return null;
         }
-        BigInteger decrypted = key.decrypt(crypt);
+        BigInteger decrypted = key.decrypt(crypt, client.friendPublicKey);
         String decrypt = new String(decrypted.toByteArray());
         return decrypt;
     }

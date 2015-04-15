@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import view.ChatFrame;
+import view.PrivateChatFrame;
 
 /**
  *This class represents a chat consisting of clients and a server.
@@ -29,11 +30,23 @@ public class Chat
     {
         client.cf = frame;
     }
+    public void setFrame(PrivateClient client)
+    {
+        client.pc = new PrivateChatFrame(this, client);
+    }
     public void updateChat(String msg, Client client)
     {
         client.cf.updateChat(msg);
     }
+    public void updateChat(String msg, PrivateClient client)
+    {
+        client.pc.updateChat(msg);
+    }
     public void newEntry(String author, String msg, Client client)
+    {
+        client.chatentrys.add(new ChatEntry(author, msg));
+    }
+    public void newEntry(String author, String msg, PrivateClient client)
     {
         client.chatentrys.add(new ChatEntry(author, msg));
     }
@@ -41,7 +54,16 @@ public class Chat
     {
         return client.chatentrys;
     }
+    public ArrayList<ChatEntry> getChat(PrivateClient client)
+    {
+        return client.chatentrys;
+    }
     public void cleanUp(Client client)
+    {
+        client.kill();
+        clients.remove(client);
+    }
+    public void cleanUp(PrivateClient client)
     {
         client.kill();
         clients.remove(client);

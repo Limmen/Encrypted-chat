@@ -13,7 +13,7 @@ import net.miginfocom.swing.MigLayout;
  *This class is a frame for connecting to a running server and start a chat.
  * @author kim
  */
-public class ErrorFrame extends JFrame
+public class WaitFrame extends JFrame
 {
     JPanel container;
     JLabel txt;
@@ -21,7 +21,7 @@ public class ErrorFrame extends JFrame
     private Font Plain = new Font("Serif", Font.PLAIN, 18);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
-    public ErrorFrame(String name)
+    public WaitFrame(String name)
     {
         super(name);
         try 
@@ -41,16 +41,17 @@ public class ErrorFrame extends JFrame
         startup();
         
         pack();
+        //setSize(150,300);
         setLocationRelativeTo(null);    // centers on screen
         setVisible(true);
     }
     public void startup()
     {
         container = new JPanel(new MigLayout("wrap 2"));
-        txt = new JLabel("Connection was lost");
+        txt = new JLabel("Wait while we set up the private chat.. exchanging public keys");
         txt.setFont(PBold);
         container.add(txt, "span 2, align center");
-        container.setBackground(Color.yellow);
+       // container.setBackground(Color.yellow);
         add(container, BorderLayout.CENTER);
     }
     public void location(JFrame f)
