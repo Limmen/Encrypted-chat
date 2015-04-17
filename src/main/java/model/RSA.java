@@ -10,12 +10,13 @@ import java.security.SecureRandom;
  */
 public class RSA implements Serializable
 {
+    private static final long serialVersionUID = 1L;
    /*BigInteger class provides methods for modular arithmetic,
     prime number generation etc.
     SecureRandom class provides a cryptographically strong random number generator*/
    private final static BigInteger one      = new BigInteger("1");
    private final static SecureRandom random = new SecureRandom();
-
+   
    private BigInteger d;
    private BigInteger e;
    private BigInteger n;

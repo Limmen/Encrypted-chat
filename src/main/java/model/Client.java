@@ -1,12 +1,11 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.PrintWriter;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import view.ChatFrame;
+import view.RequestFrame;
 import view.WaitFrame;
 
 /**
@@ -20,12 +19,12 @@ public class Client extends Thread
     public int port;
     public String username;
     private Socket socket;
-    public PrintWriter out;
-    private BufferedReader in;
     private ObjectInputStream objectIn;
+    public ObjectOutputStream objectOut;
     Chat chat;
     ChatFrame cf;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
+    public WaitFrame wf;
     
     public Client(String ip, int port, String username, Chat chat) throws Exception
     {
@@ -40,64 +39,55 @@ public class Client extends Thread
     {
             try
             {
-                
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
+                objectOut = new ObjectOutputStream(socket.getOutputStream());
                 objectIn = new ObjectInputStream(socket.getInputStream());
                 RSA key = (RSA)objectIn.readObject();
                 cf.key = key;
-                System.out.println(username + "received rsa key");
                 sleep(100);
-                out.println(username);
+                objectOut.writeObject(username);
+                objectOut.reset();
                 sleep(50);
-                out.println(ip);
-                System.out.println(username + "printed IP and username");
+                objectOut.writeObject(ip);
         while (true)
         {
-            System.out.println("Client waiting");
-            String inputs  = in.readLine();
+            String inputs =(String)objectIn.readObject();
             if(inputs == null)
             {
                 //Connection to Server was lost
-                System.out.println("Connection was lost , client here");
                 cf.lostConnection();
                 kill();
             }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
             {
-                System.out.println(username + "received ascii for username");
                 Object o = objectIn.readObject();
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
-               // ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
                 cf.updateUsers(users);
                 users = null;
                 continue;
             }
              if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
              {
-                 System.out.println("Opening waitframe");
-                 WaitFrame wf = new WaitFrame("Setting up private chat");
-                 System.out.println("Client received ascii for private");
-                 String port = in.readLine();
-                 System.out.println("Client Received port: " + port);
-                 String action = in.readLine();
+                 //String port = (String) objectIn.readObject();
+                 String from = (String) objectIn.readObject();
+                 new RequestFrame(from, this);
+                 continue;
+             }
+             if(inputs.equalsIgnoreCase("115 101 116 116 105 110 103 032 117 112 032 099 104 097 116"))
+             {
+                 String port = (String) objectIn.readObject();
+                 //sleep(1000);
                  PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
                  cf.setState(cf.ICONIFIED);
-                 sleep(500);
-                 if(action.equalsIgnoreCase("send"))
-                 {
-                     sleep(200);
-                     pc.sendPublicKey();
-                     pc.receivePublicKey();
-                 }
-                 if(action.equalsIgnoreCase("receive"))
-                 {
-                     pc.receivePublicKey();
-                     sleep(200);
-                     pc.sendPublicKey();
-                 }
-                 sleep(500);
+                 sleep(100);
                  wf.dispose();
+                 pc.setFrame();
+                 pc.start();
+             }
+             if(inputs.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
+             {
+                 String port = (String) objectIn.readObject();
+                 //sleep(500);
+                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
                  pc.setFrame();
                  pc.start();
                  continue;
@@ -115,9 +105,9 @@ public class Client extends Thread
     }
     public void close(Socket socket)
     {
-        out.close();
         try
         {
+            objectOut.close();
             socket.close();
         }
         catch(Exception e)
@@ -133,8 +123,8 @@ public class Client extends Thread
     {
         try
         {
-            out.close();
-            in.close();
+            objectIn.close();
+            objectOut.close();
             socket.close();
             interrupt();
             stop();
@@ -144,10 +134,19 @@ public class Client extends Thread
             
         }
     }
-    public void requestChat(String username)
+    public void requestChat(String from, String to)
     {
-        out.println("112 114 105 118 097 116 101 032 099 104 097 116"); //ascii for "private chat"
-        out.println(username);
+        try
+        {
+        objectOut.writeObject("112 114 105 118 097 116 101 032 099 104 097 116"); //ascii for "private chat"
+        objectOut.reset();
+        objectOut.writeObject(from + " " + to);
+        objectOut.reset();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     
 }

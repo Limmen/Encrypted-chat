@@ -24,6 +24,7 @@ public class UserPanel extends JPanel
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
+    private Font smallBold = smallPlain.deriveFont(smallPlain.getStyle() | Font.BOLD);
     ChatFrame cf;
     PrivateChatFrame pc;
     JLabel txt;
@@ -42,8 +43,8 @@ public class UserPanel extends JPanel
         txt = new JLabel("(" + ip + ")");
         txt.setFont(Plain);
         add(txt, "span 1");
-        btn = new JButton("Private Chat");
-        btn.setFont(PBold);
+        btn = new JButton("Invite to Private Chat");
+        btn.setFont(smallBold);
         btn.addActionListener(new ActionListener() 
         {
 	    public void actionPerformed(ActionEvent arg0) 
@@ -59,18 +60,33 @@ public class UserPanel extends JPanel
         this.pc = pc;
         this.username = username;
         
-        setLayout(new MigLayout("wrap 2"));
+        setLayout(new MigLayout("wrap 3"));
         txt = new JLabel(username);
         txt.setFont(Plain);
         add(txt, "span 1");
         txt = new JLabel("(" + ip + ")");
         txt.setFont(Plain);
         add(txt, "span 1");
+        btn = new JButton("Request public key");
+        btn.setFont(smallBold);
+        btn.addActionListener(new ActionListener() 
+        {
+	    public void actionPerformed(ActionEvent arg0) 
+                {   
+                    requestKey();
+	        }
+	});
+        add(btn, "span 1");
         setBackground(Color.WHITE); 
     }
     public void requestChat()
     {
         cf.requestChat(username);
+    }
+    public void requestKey()
+    {
+        System.out.println("requesting key");
+        pc.requestKey();
     }
 
 }

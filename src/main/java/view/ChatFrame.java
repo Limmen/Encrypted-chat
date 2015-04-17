@@ -114,7 +114,7 @@ public class ChatFrame extends JFrame
         usersPanel.add(txt,"span");
         extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
         usersScroll = new JScrollPane(extraPanel);
-        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersScroll.setPreferredSize(new Dimension(250,300));
         usersPanel.add(usersScroll, "span");
         
         panel.add(chatPanel, "span 1");
@@ -138,10 +138,17 @@ public class ChatFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
+                    try
+                    {
+                        client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        entry.setText("");
+                        pack();
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
                     
-                    client.out.println(client.getUsername() + " " + entry.getText());
-                    entry.setText("");
-                    pack();
 	        }
 	});
         panel.add(btn, "span 1");
@@ -187,7 +194,7 @@ public class ChatFrame extends JFrame
         usersPanel.remove(usersScroll);
         extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
         usersScroll = new JScrollPane(extraPanel);
-        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersScroll.setPreferredSize(new Dimension(250,300));
         usersPanel.add(usersScroll, "span");
         pack();
     }
@@ -239,8 +246,8 @@ public class ChatFrame extends JFrame
         new ErrorFrame(name);
         dispose();
     }
-    public void requestChat(String username)
+    public void requestChat(String to)
     {
-        client.requestChat(username);
+        client.requestChat(client.username, to);
     }
 }

@@ -2,11 +2,11 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import view.WaitFrame;
 
 /**
  *This class represents the server-side of a connection with a user in the chat.
@@ -14,9 +14,8 @@ import view.WaitFrame;
  */
 public class ClientHandler extends Thread{
         Socket socket;    
-        private BufferedReader in;
-        private PrintWriter out;
         private ObjectOutputStream objectOut;
+        private ObjectInputStream objectIn;
         private Server  server;
         private int nr;
         private ChatRoomEntry client;
@@ -30,23 +29,20 @@ public class ClientHandler extends Thread{
         public void run() {
             try 
             {
-                in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
-                server.users.add(out);
-                sleep(250);
+                objectIn = new ObjectInputStream(socket.getInputStream());
+                //server.users.add(out);
+                sleep(100);
                 objectOut.writeObject(server.key);
-                String user = in.readLine();
-                String ip = in.readLine();
+                objectOut.reset();
+                String user = (String) objectIn.readObject();
+                String ip = (String) objectIn.readObject();
                 client = new ChatRoomEntry(user,ip);
-                System.out.println(client.username + "handler read ip and username");
                 server.chatroomEntrys.add(client);
                 updateUsers();
                 while(true)
                 {
-                    System.out.println("ClientHandler waiting");
-                    String input = in.readLine();
+                    String input = (String) objectIn.readObject();
                     if(input == null)
                     {
                         //Client left the chat.
@@ -59,37 +55,50 @@ public class ClientHandler extends Thread{
                     if(input.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
                     {
                         //Start wait frame for setting up private chat
-                        String privatech = in.readLine();
-                        ServerSocket privateServer = new ServerSocket(0);
+                        String received = (String) objectIn.readObject();
+                        String[] someentry = received.split(" ", 2);
+                        String from = someentry[0];
+                        String to = someentry[1];
                         for(ClientHandler ch : server.getHandlers())
                         {
-                            if(ch.client.username.equalsIgnoreCase(privatech))
+                            if(ch.client.username.equalsIgnoreCase(to))
                             {
-                                String port = Integer.toString(privateServer.getLocalPort());
                                 ch.printToClient("112 114 105 118 097 116 101 032 099 104 097 116");
-                                ch.printToClient(port);
                                 sleep(100);
-                                printToClient("112 114 105 118 097 116 101 032 099 104 097 116");
-                                printToClient(port);
-                                sleep(100);
-                                ch.printToClient("send");
-                                sleep(100);
-                                printToClient("receive");
-                                PrivateHandler one = new PrivateHandler(privateServer.accept(), server, 1);
-                                sleep(100);
-                                PrivateHandler two = new PrivateHandler(privateServer.accept(), server, 1);
-                                one.otherhandler = two;
-                                two.otherhandler = one;
-                                privateServer.close();
+                                ch.printToClient(from);
                                 continue;
                             }
                         }
                         continue;
                     }
+                    if(input.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
+                    {
+                        ServerSocket privateServer = new ServerSocket(0);
+                        String port = Integer.toString(privateServer.getLocalPort());
+                        String from = (String) objectIn.readObject();
+                        printToClient("115 101 116 116 105 110 103 032 117 112 032 099 104 097 116");
+                        printToClient(port);
+                        for(ClientHandler ch : server.getHandlers())
+                        {
+                            if(ch.client.username.equalsIgnoreCase(from))
+                            {
+                                ch.printToClient("097 099 099 101 112 116 101 100");
+                                ch.printToClient(port);
+                                
+                            }
+                        }
+                        PrivateHandler one = new PrivateHandler(privateServer.accept(), server, 1);
+                        PrivateHandler two = new PrivateHandler(privateServer.accept(), server, 1);
+                        one.otherhandler = two;
+                        two.otherhandler = one;
+                        privateServer.close();
+                        continue;
+                        
+                    }
                     for(ClientHandler ch : server.getHandlers())
                     {
                         ch.printToClient(input);
-                        sleep(1000);
+                        sleep(100);
                     }
                 }
             }
@@ -100,16 +109,24 @@ public class ClientHandler extends Thread{
         }
         public void printToClient(String msg)
         {
-            out.println(msg);
+            try
+            {
+                objectOut.writeObject(msg);
+                objectOut.reset();
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+            
         }
         public void printToClient(Object o)
         {
-            System.out.println("Object to print is: "  + o);
             try
             {
                 objectOut.flush();
-                objectOut.reset();
                 objectOut.writeObject(o);
+                objectOut.reset();
             }
             catch(Exception e)
             {
@@ -129,15 +146,13 @@ public class ClientHandler extends Thread{
         }
         public void updateUsers()
         {
-            System.out.println(client.username + "is updating the users");
             try
             {
             for(ClientHandler ch : server.getHandlers())
                     {
                         ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
-                        System.out.println("size: " + server.chatroomEntrys.size());
                         ch.printToClient(server.chatroomEntrys);
-                        sleep(500);
+                        sleep(100);
                     }
             }
                         catch(Exception e)

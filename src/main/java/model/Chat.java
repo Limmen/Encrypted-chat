@@ -68,10 +68,6 @@ public class Chat
         client.kill();
         clients.remove(client);
     }
-    public void send(String msg, Client client)
-    {
-        client.out.println(msg);
-    }
     public boolean checkUsername(String username)
     {
         for (Client client : clients)

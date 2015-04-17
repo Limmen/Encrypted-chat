@@ -14,6 +14,7 @@ import java.math.BigInteger;
  */
 public class RSAPublicKey implements Serializable
 {
+    private static final long serialVersionUID = 2L;
     public BigInteger d;
     public BigInteger n;
     

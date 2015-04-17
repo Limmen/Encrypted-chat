@@ -15,12 +15,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import model.Chat;
 import model.ChatEntry;
 import model.ChatRoomEntry;
 import model.PrivateClient;
 import model.RSA;
+import model.RSAPublicKey;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -112,7 +114,7 @@ public class PrivateChatFrame extends JFrame
         usersPanel.add(txt,"span");
         extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
         usersScroll = new JScrollPane(extraPanel);
-        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersScroll.setPreferredSize(new Dimension(250,300));
         usersPanel.add(usersScroll, "span");
         
         panel.add(chatPanel, "span 1");
@@ -136,10 +138,17 @@ public class PrivateChatFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
-                    
-                    client.out.println(client.getUsername() + " " + entry.getText());
-                    entry.setText("");
-                    pack();
+                    try
+                    {
+                        client.objectOut.flush();
+                        client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        entry.setText("");
+                        pack();
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
 	        }
 	});
         panel.add(btn, "span 1");
@@ -185,7 +194,7 @@ public class PrivateChatFrame extends JFrame
         usersPanel.remove(usersScroll);
         extraPanel = genUsers(new JPanel(new MigLayout("wrap 1")));
         usersScroll = new JScrollPane(extraPanel);
-        usersScroll.setPreferredSize(new Dimension(150,300));
+        usersScroll.setPreferredSize(new Dimension(250,300));
         usersPanel.add(usersScroll, "span");
         pack();
     }
@@ -234,11 +243,24 @@ public class PrivateChatFrame extends JFrame
     }
     public void lostConnection()
     {
-        new ErrorFrame(name);
+        //new ErrorFrame(name);
         dispose();
     }
-    public void requestChat(String username)
+    public void requestKey()
     {
-        client.requestChat(username);
+       client.requestKey();
+    }
+    public void delay()
+    {
+        int delay = 2000;
+        Timer timer = new Timer( delay, new ActionListener(){
+            @Override
+            public void actionPerformed( ActionEvent e ){
+                System.out.println("timer went off");
+                cleanUp();
+            }
+        });
+        timer.setRepeats( false );
+        timer.start();
     }
 }

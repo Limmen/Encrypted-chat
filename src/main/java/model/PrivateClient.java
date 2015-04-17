@@ -21,15 +21,15 @@ public class PrivateClient extends Thread
     public int port;
     public String username;
     private Socket socket;
-    public PrintWriter out;
-    private BufferedReader in;
-    private ObjectInputStream objectIn;
+    //public PrintWriter out;
+    //public BufferedReader in;
+    public ObjectInputStream objectIn;
     Chat chat;
     private RSA key;
     public RSAPublicKey myPublicKey;
     public RSAPublicKey friendPublicKey;
     PrivateChatFrame pc;
-    private ObjectOutputStream objectOut;
+    public ObjectOutputStream objectOut;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     
     public PrivateClient(String ip, int port, String username, Chat chat)
@@ -39,12 +39,12 @@ public class PrivateClient extends Thread
         this.username = username;
         this.chat = chat;
         this.key = new RSA();
-        myPublicKey = key.publicKey;
+        this.myPublicKey = key.publicKey;
         try
         {
         socket = new Socket(ip, port);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
+        //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        //out = new PrintWriter(socket.getOutputStream(), true);
         objectOut = new ObjectOutputStream(socket.getOutputStream());
         objectIn = new ObjectInputStream(socket.getInputStream());
         }
@@ -63,39 +63,58 @@ public class PrivateClient extends Thread
     {
             try
             {
+                /*
+                out.println("082 083 065");
+                sleep(500);
+                objectOut.flush();
+                objectOut.reset();
+                objectOut.writeObject(myPublicKey);
+                sleep(1000);
+                        */
+                //out.println("117 115 101 114 110 097 109 101");
+                objectOut.flush();
+                objectOut.writeObject(username);
+                objectOut.reset();
+                objectOut.flush();
+                objectOut.writeObject(ip);
+                objectOut.reset();
                 
-                //RSA key = (RSA)objectIn.readObject();
-                //pc.key = key;
-                //System.out.println(username + "received rsa key");
-                //sleep(100);
-                out.println(username);
-                sleep(50);
-                out.println(ip);
-                System.out.println(username + "printed IP and username");
         while (true)
         {
-            String inputs  = in.readLine();
+            String inputs  = (String) objectIn.readObject();
             if(inputs == null)
             {
                 //Connection to Server was lost
-                System.out.println("Connection was lost , client here");
                 pc.lostConnection();
                 kill();
             }
+            if(inputs.equals("105 110 099 111 109 109 105 110 103 032 107 101 121"))
+            {
+                RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
+                friendPublicKey = k;
+                continue;
+            }
+            if(inputs.equals("082 083 065"))
+            {
+                objectOut.writeObject("105 110 099 111 109 109 105 110 103 032 107 101 121");
+                sleep(1000);
+                objectOut.flush();
+                objectOut.writeObject(myPublicKey);
+                objectOut.reset();
+                continue;
+            }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
             {
-                System.out.println(username + "received ascii for username");
+                sleep(500);
                 Object o = objectIn.readObject();
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
-               // ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>)objectIn.readObject();
                 pc.updateUsers(users);
                 users = null;
                 continue;
             }
              if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
              {
-                 String port = in.readLine();
-                 System.out.println("Client Received port: " + port);
+                 String port = (String) objectIn.readObject();
              }
             chat.updateChat(inputs, this);
             
@@ -103,45 +122,18 @@ public class PrivateClient extends Thread
             }
         catch(Exception e)
         {
-            pc.lostConnection();
-            kill();
-        }
-    }
-    public void sendPublicKey()
-    {
-        try
-        {
-            System.out.println("time to send key");
-            out.println("082 083 065");
-            objectOut.flush();
-            objectOut.reset();
-            objectOut.writeObject(myPublicKey);
-            System.out.println("key sent");
-        }
-        catch(Exception e)
-        {
             e.printStackTrace();
-        }
-    }
-    public void receivePublicKey()
-    {
-        try
-        {
-            System.out.println("TIme to receive key");
-            RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
-            this.friendPublicKey = k;
-            System.out.println("Received key");
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
+            //pc.lostConnection();
+            //kill();
         }
     }
     public void close(Socket socket)
     {
-        out.close();
+        
         try
         {
+            objectIn.close();
+            objectOut.close();
             socket.close();
         }
         catch(Exception e)
@@ -157,8 +149,8 @@ public class PrivateClient extends Thread
     {
         try
         {
-            out.close();
-            in.close();
+            objectIn.close();
+            objectOut.close();
             socket.close();
             interrupt();
             stop();
@@ -168,10 +160,19 @@ public class PrivateClient extends Thread
             
         }
     }
-    public void requestChat(String username)
+    
+    public void requestKey()
     {
-        out.println("112 114 105 118 097 116 101 032 099 104 097 116"); //ascii for "private chat"
-        out.println(username);
+        try
+        {
+            objectOut.flush();
+            objectOut.writeObject("082 083 065");
+            objectOut.reset();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     
 }

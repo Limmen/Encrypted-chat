@@ -16,8 +16,6 @@ import java.util.ArrayList;
  */
 public class PrivateHandler extends Thread{
         Socket socket;    
-        private BufferedReader in;
-        private PrintWriter out;
         private ObjectOutputStream objectOut;
         private Server  server;
         public PrivateHandler otherhandler;
@@ -25,41 +23,31 @@ public class PrivateHandler extends Thread{
         private ChatRoomEntry client;
         private ArrayList<ChatRoomEntry> chatRoomEntrys = new ArrayList();
         private ObjectInputStream objectIn;
+        private boolean sent;
+        private RSAPublicKey clientKey;
+        private RSAPublicKey friendKey;
         public PrivateHandler(Socket socket, Server  server, int nr)
         {
             this.socket = socket;
             this.server = server;
+            this.sent = false;
             this.nr = nr;
             start();
         }
         public void run() {
             try 
             {
-                in = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
-                out = new PrintWriter(socket.getOutputStream(), true);
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
                 objectIn = new ObjectInputStream(socket.getInputStream());
-                //sleep(250);
-                //objectOut.writeObject(server.key);
-                exchangeKeys();
-                
-                String user = in.readLine();
-                String ip = in.readLine();
+                String user = (String) objectIn.readObject();
+                String ip = (String) objectIn.readObject();
                 client = new ChatRoomEntry(user,ip);
                 System.out.println(client.username + "handler read ip and username");
                 chatRoomEntrys.add(client);
-                if(otherhandler.client != null)
-                chatRoomEntrys.add(otherhandler.client);
-                sleep(500);
                 updateUsers();
                 while(true)
                 {
-                    if(chatRoomEntrys.size()<2 && otherhandler.client != null)
-                    {
-                        chatRoomEntrys.add(otherhandler.client);
-                    }
-                    String input = in.readLine();
+                    String input = (String)objectIn.readObject();
                     if(input == null)
                     {
                         //Client left the chat.
@@ -69,10 +57,22 @@ public class PrivateHandler extends Thread{
                         socket.close();
                         return;
                     }
+                    if(input.equalsIgnoreCase("105 110 099 111 109 109 105 110 103 032 107 101 121"))
+                    {
+                        RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
+                        otherhandler.printToClient("105 110 099 111 109 109 105 110 103 032 107 101 121");
+                        sleep(100);
+                        otherhandler.printToClient(k);
+                        continue;
+                    }
+                    if(input.equalsIgnoreCase("082 083 065")) //"RSA"
+                    {
+                        otherhandler.printToClient("082 083 065");
+                        continue;
+                    }
                         printToClient(input);
-                        sleep(1000);
+                        sleep(100);
                         otherhandler.printToClient(input);
-                        sleep(500);
                 }
             }
                 catch(Exception e)
@@ -80,36 +80,26 @@ public class PrivateHandler extends Thread{
                         e.printStackTrace();
                 }
         }
-        public void exchangeKeys()
-        {
-            try
-            {
-            String input = in.readLine();
-            if(input.equalsIgnoreCase("082 083 065")) //"RSA"
-                    {
-                        System.out.println("Received ascii for RSA");
-                        RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
-                        otherhandler.printToClient(k);
-                    }
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
-            
-        }
         public void printToClient(String msg)
         {
-            out.println(msg);
-        }
-        public void printToClient(Object o)
-        {
-            System.out.println("Object to print is: "  + o);
             try
             {
                 objectOut.flush();
+                objectOut.writeObject(msg);
                 objectOut.reset();
+            }
+            catch(Exception e)
+            {
+                
+            }
+        }
+        public void printToClient(Object o)
+        {
+            try
+            {
+                objectOut.flush();
                 objectOut.writeObject(o);
+                objectOut.reset();
             }
             catch(Exception e)
             {
@@ -129,12 +119,25 @@ public class PrivateHandler extends Thread{
         }
         public void updateUsers()
         {
-            System.out.println(client.username + "is updating the users");
             try
             {
+                if(otherhandler != null)
+                {
+                    chatRoomEntrys.add(otherhandler.client);
+                    if(otherhandler.chatRoomEntrys.size() < 2)
+                    {
+                        otherhandler.chatRoomEntrys.add(client);
+                    }
+                    otherhandler.printToClient("117 115 101 114 110 097 109 101");
+                    otherhandler.printToClient(otherhandler.chatRoomEntrys);
+                    otherhandler.sleep(100);
+                    sleep(100);
+                }
                 printToClient("117 115 101 114 110 097 109 101"); //ascii for username
-                System.out.println("size: " + chatRoomEntrys.size());
                 printToClient(chatRoomEntrys);
+                otherhandler.sleep(100);
+                sleep(100);
+                
             }
                         catch(Exception e)
                         {
