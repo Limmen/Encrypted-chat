@@ -60,23 +60,13 @@ public class UserPanel extends JPanel
         this.pc = pc;
         this.username = username;
         
-        setLayout(new MigLayout("wrap 3"));
+        setLayout(new MigLayout("wrap 2"));
         txt = new JLabel(username);
         txt.setFont(Plain);
         add(txt, "span 1");
         txt = new JLabel("(" + ip + ")");
         txt.setFont(Plain);
         add(txt, "span 1");
-        btn = new JButton("Request public key");
-        btn.setFont(smallBold);
-        btn.addActionListener(new ActionListener() 
-        {
-	    public void actionPerformed(ActionEvent arg0) 
-                {   
-                    requestKey();
-	        }
-	});
-        add(btn, "span 1");
         setBackground(Color.WHITE); 
     }
     public void requestChat()

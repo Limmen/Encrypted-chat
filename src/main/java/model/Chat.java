@@ -32,6 +32,8 @@ public class Chat
     }
     public void setFrame(PrivateClient client)
     {
+        if(client == null)
+            System.out.println("client == null..");
         client.pc = new PrivateChatFrame(this, client);
     }
     public void updateChat(String msg, Client client)
@@ -46,9 +48,17 @@ public class Chat
     {
         client.chatentrys.add(new ChatEntry(author, msg));
     }
+    public void newEntry(String author, String msg, Client client, boolean encrypted)
+    {
+        client.chatentrys.add(new ChatEntry(author, msg, encrypted));
+    }
     public void newEntry(String author, String msg, PrivateClient client)
     {
         client.chatentrys.add(new ChatEntry(author, msg));
+    }
+    public void newEntry(String author, String msg, PrivateClient client, boolean encrypted)
+    {
+        client.chatentrys.add(new ChatEntry(author, msg, encrypted));
     }
     public ArrayList<ChatEntry> getChat(Client client)
     {

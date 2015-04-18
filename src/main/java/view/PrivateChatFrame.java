@@ -35,6 +35,7 @@ public class PrivateChatFrame extends JFrame
     private PrivateClient client;
     JPanel container;
     JLabel txt;
+    JLabel title;
     JButton btn;
     JTextArea entry;
     JScrollPane scroll;
@@ -55,6 +56,8 @@ public class PrivateChatFrame extends JFrame
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     private Font TBold = Title.deriveFont(Title.getStyle() | Font.BOLD);
     private ArrayList<ChatRoomEntry> users = new ArrayList();
+    boolean encrypted = false;
+    String clearText;
     public PrivateChatFrame(Chat chat, PrivateClient client)
     {
         super(client.username + " " + client.ip + " " + client.port);
@@ -95,9 +98,9 @@ public class PrivateChatFrame extends JFrame
         container = new JPanel(new MigLayout("wrap 2"));
         chatPanel = new JPanel(new MigLayout());
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
-        txt = new JLabel("<html><font color=red>Private chat with: </font></html>");
-        txt.setFont(TBold);
-        panel.add(txt, "span 1");
+        title = new JLabel("<html><font color=red>Private chat with: </font></html>");
+        title.setFont(TBold);
+        panel.add(title, "span 1");
         txt = new JLabel("   ("+ client.ip + "  " + client.port +  ")");
         txt.setFont(Plain);
         panel.add(txt, "span 1");
@@ -140,9 +143,20 @@ public class PrivateChatFrame extends JFrame
                 {   
                     try
                     {
-                        client.objectOut.flush();
-                        client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        if(encrypted)
+                        {
+                             updateChat(client.getUsername() + " " + clearText);
+                             client.objectOut.flush();
+                             client.objectOut.writeObject("101 110 099 114 121 112 116 101 100");
+                             client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                             client.objectOut.reset();
+                        }
+                        else
+                        {
+                            client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        }
                         entry.setText("");
+                        encrypted = false;
                         pack();
                     }
                     catch(Exception e)
@@ -158,8 +172,10 @@ public class PrivateChatFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
+                    clearText = entry.getText();
                     BigInteger crypto = key.encrypt(key.createmessage(entry.getText()));
                     entry.setText(crypto.toString());
+                    encrypted = true;
                     pack();
 	        }
 	});
@@ -184,7 +200,14 @@ public class PrivateChatFrame extends JFrame
         String[] someentry = msg.split(" ", 2);
         String user = someentry[0];
         String text = someentry[1];
-        chat.newEntry(user, text, client);
+        if(user.equals(client.username))
+        {
+            chat.newEntry(user,text,client,false);
+        }
+        else
+        {
+            chat.newEntry(user, text, client);
+        }
         updateChat(chat.getChat(client));
         pack();
     }
@@ -236,6 +259,8 @@ public class PrivateChatFrame extends JFrame
     {
         for(ChatRoomEntry e : users)
         {
+            if(e.username != client.username)
+                setUser(e.username);
             JPanel user = new UserPanel(this, e.username, e.ip);
             panel.add(user, "span 1");
         }
@@ -262,5 +287,10 @@ public class PrivateChatFrame extends JFrame
         });
         timer.setRepeats( false );
         timer.start();
+    }
+    public void setUser(String user)
+    {
+        title.setText("<html><font color=red>Private chat with: </font><font color=black>" + user + "</font></html>");
+        pack();
     }
 }

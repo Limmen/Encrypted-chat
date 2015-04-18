@@ -1,14 +1,12 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.util.ArrayList;
 import view.PrivateChatFrame;
+import view.WaitFrame;
 
 /**
  *This class represents a chat user (client) and the corresponding socket connection
@@ -21,8 +19,6 @@ public class PrivateClient extends Thread
     public int port;
     public String username;
     private Socket socket;
-    //public PrintWriter out;
-    //public BufferedReader in;
     public ObjectInputStream objectIn;
     Chat chat;
     private RSA key;
@@ -31,6 +27,8 @@ public class PrivateClient extends Thread
     PrivateChatFrame pc;
     public ObjectOutputStream objectOut;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
+    WaitFrame wf;
+    boolean sent = false;
     
     public PrivateClient(String ip, int port, String username, Chat chat)
     {
@@ -43,8 +41,6 @@ public class PrivateClient extends Thread
         try
         {
         socket = new Socket(ip, port);
-        //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        //out = new PrintWriter(socket.getOutputStream(), true);
         objectOut = new ObjectOutputStream(socket.getOutputStream());
         objectIn = new ObjectInputStream(socket.getInputStream());
         }
@@ -57,21 +53,17 @@ public class PrivateClient extends Thread
     {
         chat.setFrame(this);
         pc.key = this.key;
+        pc.setVisible(false);
+    }
+    public void setWaitFrame(WaitFrame wf)
+    {
+        this.wf = wf;
     }
     @Override
     public void run()
     {
             try
             {
-                /*
-                out.println("082 083 065");
-                sleep(500);
-                objectOut.flush();
-                objectOut.reset();
-                objectOut.writeObject(myPublicKey);
-                sleep(1000);
-                        */
-                //out.println("117 115 101 114 110 097 109 101");
                 objectOut.flush();
                 objectOut.writeObject(username);
                 objectOut.reset();
@@ -92,15 +84,40 @@ public class PrivateClient extends Thread
             {
                 RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
                 friendPublicKey = k;
+                System.out.println(username + "received public key");
+                if(sent == true)
+                {
+                    wf.dispose();
+                    pc.setVisible(true);
+                }
                 continue;
             }
             if(inputs.equals("082 083 065"))
             {
+                
                 objectOut.writeObject("105 110 099 111 109 109 105 110 103 032 107 101 121");
                 sleep(1000);
                 objectOut.flush();
                 objectOut.writeObject(myPublicKey);
+                this.sent = true;
+                System.out.println("Client sent my public key");
                 objectOut.reset();
+                String ack = (String) objectIn.readObject();
+                System.out.println("Client received ack");
+                if(ack.equalsIgnoreCase("key sent"))
+                {
+                    if(this.friendPublicKey == null)
+                    {
+                        sleep(100);
+                        requestKey();
+                    }
+                    else
+                    {
+                        wf.dispose();
+                        pc.setVisible(true);
+                    }
+                }
+                
                 continue;
             }
             if(inputs.equals("117 115 101 114 110 097 109 101"))
@@ -109,7 +126,7 @@ public class PrivateClient extends Thread
                 Object o = objectIn.readObject();
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
                 pc.updateUsers(users);
-                users = null;
+                //users = null;
                 continue;
             }
              if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
@@ -165,6 +182,7 @@ public class PrivateClient extends Thread
     {
         try
         {
+            System.out.println("Requesting key nr 2");
             objectOut.flush();
             objectOut.writeObject("082 083 065");
             objectOut.reset();

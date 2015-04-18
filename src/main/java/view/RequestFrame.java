@@ -111,6 +111,7 @@ public class RequestFrame extends JFrame
         try
         {
         WaitFrame wf = new WaitFrame("Setting up private chat");
+        wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
         client.objectOut.writeObject("097 099 099 101 112 116 101 100");
         client.objectOut.reset();
         sleep(100);

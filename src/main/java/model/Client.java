@@ -25,6 +25,7 @@ public class Client extends Thread
     ChatFrame cf;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     public WaitFrame wf;
+    private String to;
     
     public Client(String ip, int port, String username, Chat chat) throws Exception
     {
@@ -75,19 +76,20 @@ public class Client extends Thread
              if(inputs.equalsIgnoreCase("115 101 116 116 105 110 103 032 117 112 032 099 104 097 116"))
              {
                  String port = (String) objectIn.readObject();
-                 //sleep(1000);
                  PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
                  cf.setState(cf.ICONIFIED);
-                 sleep(100);
-                 wf.dispose();
                  pc.setFrame();
+                 wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
+                 pc.setWaitFrame(wf);
                  pc.start();
              }
              if(inputs.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
              {
                  String port = (String) objectIn.readObject();
-                 //sleep(500);
                  PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
+                 cf.setState(cf.ICONIFIED);
+                 wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
+                 pc.setWaitFrame(wf);
                  pc.setFrame();
                  pc.start();
                  continue;
@@ -138,6 +140,9 @@ public class Client extends Thread
     {
         try
         {
+        this.to = to;
+        this.wf = new WaitFrame("Waiting for " + to + " to accept private-chat invite");
+        wf.setText("Waiting for ", to, " to accept private-chat invite");
         objectOut.writeObject("112 114 105 118 097 116 101 032 099 104 097 116"); //ascii for "private chat"
         objectOut.reset();
         objectOut.writeObject(from + " " + to);

@@ -19,8 +19,9 @@ public class WaitFrame extends JFrame
 {
     JPanel container;
     JLabel txt;
+    JPanel panel;
     private Font Italic = new Font("Serif", Font.ITALIC, 12);
-    private Font Plain = new Font("Serif", Font.PLAIN, 18);
+    private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     BufferedImage image;
@@ -52,18 +53,38 @@ public class WaitFrame extends JFrame
     public void startup()
     {
         container = new JPanel(new MigLayout("wrap 1"));
+        panel = new JPanel(new MigLayout("wrap 3"));
         txt = new JLabel("Wait while we set up the private chat..");
         txt.setFont(Plain);
-        container.add(txt, "span 1, align center");
+        panel.add(txt, "span 3, align center");
+        container.add(panel, "span 1, align center");
         image = reader.readImage("wait.jpg");
         JLabel wait = new JLabel(new ImageIcon(image));
-//        wait.setSize(200,2);
         container.add(wait, "span 1, align center");
         add(container, BorderLayout.CENTER);
     }
     public void location(JFrame f)
     {
         setLocation(f.getX() - (getWidth() - f.getWidth())/2, f.getY() + f.getHeight() + f.getHeight()/6);
+        pack();
+    }
+    public void setText(String text)
+    {
+        txt.setText(text);
+        pack();
+    }
+    public void setText(String text, String user, String text2)
+    {
+        panel.removeAll();
+        txt = new JLabel(text);
+        txt.setFont(Plain);
+        panel.add(txt, "span 1");
+        txt = new JLabel(user);
+        txt.setFont(PBold);
+        panel.add(txt, "span 1");
+        txt = new JLabel(text2);
+        txt.setFont(Plain);
+        panel.add(txt, "span 1");
         pack();
     }
 }

@@ -30,53 +30,81 @@ public class EntryPanel extends JPanel
     public EntryPanel(ChatFrame cf, ChatEntry entry)
     {
         this.cf = cf;
-        
-        setLayout(new MigLayout("wrap 3"));
-        JButton decrypt = new JButton("Decrypt");
-        decrypt.setFont(smallPlain);
-        decrypt.addActionListener(new ActionListener() 
+        if(entry.encrypted)
         {
-	    public void actionPerformed(ActionEvent arg0) 
+            setLayout(new MigLayout("wrap 3"));
+            
+            JButton decrypt = new JButton("Decrypt");
+            decrypt.setFont(smallPlain);
+            decrypt.addActionListener(new ActionListener() 
+            {
+                public void actionPerformed(ActionEvent arg0) 
                 {   
                     String decrypted = decrypt();
                     if(decrypted != null)
                     txt.setText(decrypted);
 	        }
-	});
-        add(decrypt, "span 1");
-        txt = new JLabel(entry.getAuthor());
-        txt.setFont(PBold);
-        add(txt, "span 1, gap 20");
-        txt = new JLabel(entry.getMsg());
-        txt.setFont(Plain);
-        add(txt,"span 1");
-        setBackground(Color.WHITE); 
+            });
+            add(decrypt, "span 1");
+            txt = new JLabel(entry.getAuthor());
+            txt.setFont(PBold);
+            add(txt, "span 1, gap 20");
+            txt = new JLabel(entry.getMsg());
+            txt.setFont(Plain);
+            add(txt,"span 1");
+            setBackground(Color.WHITE);
+        }
+        else
+        {
+            setLayout(new MigLayout("wrap 2"));
+            txt = new JLabel(entry.getAuthor());
+            txt.setFont(PBold);
+            add(txt, "span 1");
+            txt = new JLabel(entry.getMsg());
+            txt.setFont(Plain);
+            add(txt,"span 1");
+            setBackground(Color.WHITE);
+        }
     }
     public EntryPanel(PrivateChatFrame pc, ChatEntry entry)
     {
         this.pc = pc;
-        
-        setLayout(new MigLayout("wrap 3"));
-        JButton decrypt = new JButton("Decrypt");
-        decrypt.setFont(smallPlain);
-        decrypt.addActionListener(new ActionListener() 
+        if(entry.encrypted)
         {
-	    public void actionPerformed(ActionEvent arg0) 
+            setLayout(new MigLayout("wrap 3"));
+            JButton decrypt = new JButton("Decrypt");
+            decrypt.setFont(smallPlain);
+            decrypt.addActionListener(new ActionListener() 
+            {
+                public void actionPerformed(ActionEvent arg0) 
                 {   
                     String decrypted = privateDecrypt();
                     if(decrypted != null)
                     txt.setText(decrypted);
 	        }
-	});
-        add(decrypt, "span 1");
-        txt = new JLabel(entry.getAuthor());
-        txt.setFont(PBold);
-        add(txt, "span 1, gap 20");
-        txt = new JLabel(entry.getMsg());
-        txt.setFont(Plain);
-        add(txt,"span 1");
-        setBackground(Color.WHITE); 
+            });
+            add(decrypt, "span 1");
+            txt = new JLabel(entry.getAuthor());
+            txt.setFont(PBold);
+            add(txt, "span 1, gap 20");
+            txt = new JLabel(entry.getMsg());
+            txt.setFont(Plain);
+            add(txt,"span 1");
+            setBackground(Color.WHITE); 
+        }
+        else
+        {
+            setLayout(new MigLayout("wrap 2"));
+            txt = new JLabel(entry.getAuthor());
+            txt.setFont(PBold);
+            add(txt, "span 1");
+            txt = new JLabel(entry.getMsg());
+            txt.setFont(Plain);
+            add(txt,"span 1");
+            setBackground(Color.WHITE); 
+        }
     }
+    
     public String decrypt()
     {
         String decrypted = cf.decrypt(txt.getText());

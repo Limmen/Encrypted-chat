@@ -54,6 +54,8 @@ public class ChatFrame extends JFrame
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
     private Font TBold = Title.deriveFont(Title.getStyle() | Font.BOLD);
     private ArrayList<ChatRoomEntry> users = new ArrayList();
+    boolean encrypted = false;
+    String clearText;
     public ChatFrame(View view, Chat chat, Client client)
     {
         super(client.username + " " + client.ip + " " + client.port);
@@ -140,8 +142,20 @@ public class ChatFrame extends JFrame
                 {   
                     try
                     {
-                        client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        if(encrypted)
+                        {
+                             updateChat(client.getUsername() + " " + clearText);
+                             client.objectOut.flush();
+                             client.objectOut.writeObject("101 110 099 114 121 112 116 101 100");
+                             client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                             client.objectOut.reset();
+                        }
+                        else
+                        {
+                            client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                        }
                         entry.setText("");
+                        encrypted = false;
                         pack();
                     }
                     catch(Exception e)
@@ -158,8 +172,10 @@ public class ChatFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
+                    clearText = entry.getText();
                     BigInteger crypto = key.encrypt(key.createmessage(entry.getText()));
                     entry.setText(crypto.toString());
+                    encrypted = true;
                     pack();
 	        }
 	});
@@ -184,7 +200,14 @@ public class ChatFrame extends JFrame
         String[] someentry = msg.split(" ", 2);
         String user = someentry[0];
         String text = someentry[1];
-        chat.newEntry(user, text, client);
+        if(user.equals(client.username))
+        {
+            chat.newEntry(user,text,client,false);
+        }
+        else
+        {
+            chat.newEntry(user, text, client);
+        }
         updateChat(chat.getChat(client));
         pack();
     }

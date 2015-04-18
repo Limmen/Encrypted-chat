@@ -71,6 +71,19 @@ public class ClientHandler extends Thread{
                         }
                         continue;
                     }
+                    if(input.equalsIgnoreCase("101 110 099 114 121 112 116 101 100"))
+                    {
+                        String crypto = (String) objectIn.readObject();
+                        for(ClientHandler ch : server.getHandlers())
+                        {
+                            if(ch != this)
+                            {
+                                ch.printToClient(crypto);
+                                sleep(100);
+                            }
+                        }
+                        continue;
+                    }
                     if(input.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
                     {
                         ServerSocket privateServer = new ServerSocket(0);
@@ -91,6 +104,8 @@ public class ClientHandler extends Thread{
                         PrivateHandler two = new PrivateHandler(privateServer.accept(), server, 1);
                         one.otherhandler = two;
                         two.otherhandler = one;
+                        sleep(2000);
+                        one.requestKey();
                         privateServer.close();
                         continue;
                         

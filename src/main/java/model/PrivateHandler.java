@@ -57,16 +57,27 @@ public class PrivateHandler extends Thread{
                         socket.close();
                         return;
                     }
+                    if(input.equalsIgnoreCase("101 110 099 114 121 112 116 101 100"))
+                    {
+                        String crypto = (String) objectIn.readObject();
+                        otherhandler.printToClient(crypto);
+                        continue;
+                    }
                     if(input.equalsIgnoreCase("105 110 099 111 109 109 105 110 103 032 107 101 121"))
                     {
+                        System.out.println("Handler receiived ascii, tme to recieve key");
                         RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
+                        System.out.println("Handler received key");
                         otherhandler.printToClient("105 110 099 111 109 109 105 110 103 032 107 101 121");
                         sleep(100);
                         otherhandler.printToClient(k);
+                        printToClient("key sent");
                         continue;
                     }
                     if(input.equalsIgnoreCase("082 083 065")) //"RSA"
                     {
+                        System.out.println("Handler requesting key nr 2 ");
+                        sleep(500);
                         otherhandler.printToClient("082 083 065");
                         continue;
                     }
@@ -123,6 +134,7 @@ public class PrivateHandler extends Thread{
             {
                 if(otherhandler != null)
                 {
+                    if(otherhandler.client != null)
                     chatRoomEntrys.add(otherhandler.client);
                     if(otherhandler.chatRoomEntrys.size() < 2)
                     {
@@ -144,5 +156,10 @@ public class PrivateHandler extends Thread{
                             e.printStackTrace();
                         }
                     
+        }
+        public void requestKey()
+        {
+            System.out.println("Private handler requesting key");
+            otherhandler.printToClient("082 083 065");
         }
     }
