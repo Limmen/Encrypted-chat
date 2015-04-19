@@ -73,10 +73,5 @@ public class UserPanel extends JPanel
     {
         cf.requestChat(username);
     }
-    public void requestKey()
-    {
-        System.out.println("requesting key");
-        pc.requestKey();
-    }
 
 }

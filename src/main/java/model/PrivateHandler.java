@@ -1,12 +1,8 @@
 package model;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import static java.lang.Thread.sleep;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -23,14 +19,11 @@ public class PrivateHandler extends Thread{
         private ChatRoomEntry client;
         private ArrayList<ChatRoomEntry> chatRoomEntrys = new ArrayList();
         private ObjectInputStream objectIn;
-        private boolean sent;
         private RSAPublicKey clientKey;
-        private RSAPublicKey friendKey;
         public PrivateHandler(Socket socket, Server  server, int nr)
         {
             this.socket = socket;
             this.server = server;
-            this.sent = false;
             this.nr = nr;
             start();
         }
@@ -39,56 +32,59 @@ public class PrivateHandler extends Thread{
             {
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
                 objectIn = new ObjectInputStream(socket.getInputStream());
-                String user = (String) objectIn.readObject();
-                String ip = (String) objectIn.readObject();
-                client = new ChatRoomEntry(user,ip);
-                System.out.println(client.username + "handler read ip and username");
-                chatRoomEntrys.add(client);
-                updateUsers();
                 while(true)
                 {
-                    String input = (String)objectIn.readObject();
-                    if(input == null)
+                    Object o = objectIn.readObject();
+                    if(o == null)
                     {
                         //Client left the chat.
-                        server.getHandlers().remove(this);
-                        server.chatroomEntrys.remove(client);
-                        updateUsers();
                         socket.close();
+                        otherhandler.userLeft(client);
                         return;
                     }
-                    if(input.equalsIgnoreCase("101 110 099 114 121 112 116 101 100"))
+                    if(o instanceof RSAPublicKey)
                     {
-                        String crypto = (String) objectIn.readObject();
-                        otherhandler.printToClient(crypto);
+                        if(client != null)
+                            System.out.println(client.username);
+                        this.clientKey = (RSAPublicKey) o;
+                        if(otherhandler != null)
+                        {
+                            otherhandler.printToClient(o);
+                            otherhandler.setHandler(this);
+                        }
                         continue;
                     }
-                    if(input.equalsIgnoreCase("105 110 099 111 109 109 105 110 103 032 107 101 121"))
+                    if(o instanceof ChatRoomEntry)
                     {
-                        System.out.println("Handler receiived ascii, tme to recieve key");
-                        RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
-                        System.out.println("Handler received key");
-                        otherhandler.printToClient("105 110 099 111 109 109 105 110 103 032 107 101 121");
-                        sleep(100);
-                        otherhandler.printToClient(k);
-                        printToClient("key sent");
+                        this.client = (ChatRoomEntry) o;
+                        if(chatRoomEntrys.size() < 2)
+                        {
+                            chatRoomEntrys.add(client);
+                            updateUsers();
+                        }
                         continue;
                     }
-                    if(input.equalsIgnoreCase("082 083 065")) //"RSA"
+                    if(o instanceof ChatEntry)
                     {
-                        System.out.println("Handler requesting key nr 2 ");
-                        sleep(500);
-                        otherhandler.printToClient("082 083 065");
-                        continue;
+                        otherhandler.printToClient(o);
                     }
-                        printToClient(input);
-                        sleep(100);
-                        otherhandler.printToClient(input);
+                    
+                        
                 }
             }
                 catch(Exception e)
                 {
-                        e.printStackTrace();
+                        //e.printStackTrace();
+                    try
+                    {
+                        socket.close();
+                        otherhandler.userLeft(client);
+                        return;
+                    }
+                    catch(Exception g)
+                    {
+                        
+                    }
                 }
         }
         public void printToClient(String msg)
@@ -134,18 +130,16 @@ public class PrivateHandler extends Thread{
             {
                 if(otherhandler != null)
                 {
-                    if(otherhandler.client != null)
+                    if(otherhandler.client != null && chatRoomEntrys.size() < 2)
                     chatRoomEntrys.add(otherhandler.client);
                     if(otherhandler.chatRoomEntrys.size() < 2)
                     {
                         otherhandler.chatRoomEntrys.add(client);
                     }
-                    otherhandler.printToClient("117 115 101 114 110 097 109 101");
                     otherhandler.printToClient(otherhandler.chatRoomEntrys);
                     otherhandler.sleep(100);
                     sleep(100);
                 }
-                printToClient("117 115 101 114 110 097 109 101"); //ascii for username
                 printToClient(chatRoomEntrys);
                 otherhandler.sleep(100);
                 sleep(100);
@@ -157,9 +151,19 @@ public class PrivateHandler extends Thread{
                         }
                     
         }
-        public void requestKey()
+        public void setHandler(PrivateHandler p)
         {
-            System.out.println("Private handler requesting key");
-            otherhandler.printToClient("082 083 065");
+            this.otherhandler = p;
+            if(clientKey != null)
+            {
+                otherhandler.printToClient(clientKey);
+            }
+        }
+        public void userLeft(ChatRoomEntry entry)
+        {
+            chatRoomEntrys.remove(entry);
+            printToClient(chatRoomEntrys);
+            ChatEntry ce = new ChatEntry("Server", "<html> <font color=blue> " + entry.username + "</font>" + " left the chat </html>", false);
+            printToClient(ce);
         }
     }

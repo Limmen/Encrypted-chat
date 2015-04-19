@@ -1,12 +1,15 @@
 package model;
+
+import java.io.Serializable;
+
 /**
  *This class represents a entry in the chat.
  * @author kim
  */
-public class ChatEntry 
+public class ChatEntry implements Serializable
 {
     private String author;
-    private String msg;
+    public String msg;
     public boolean encrypted = true;
     
     public ChatEntry(String author, String msg)

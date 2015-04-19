@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import static java.lang.ProcessBuilder.Redirect.from;
 import static java.lang.Thread.sleep;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -12,9 +13,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
-import model.Chat;
+import model.AcceptedInvite;
+import model.ChatInvite;
 import model.Client;
-import model.PrivateClient;
 import net.miginfocom.swing.MigLayout;
 import util.ImageReader;
 
@@ -36,11 +37,13 @@ public class RequestFrame extends JFrame
     ImageReader reader;
     private String requestFrom;
     private Client client;
-    public RequestFrame(String name, Client client)
+    ChatInvite invite;
+    public RequestFrame(ChatInvite invite, Client client)
     {
-        super("Private chat request from " + name);
-        this.requestFrom = name;
+        super("Private chat request from " + invite.from);
+        this.requestFrom = invite.from;
         this.client = client;
+        this.invite = invite;
         try 
         {
         for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) 
@@ -80,7 +83,7 @@ public class RequestFrame extends JFrame
         {
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
-                   privateChat(requestFrom);
+                   privateChat();
                    dispose();
 	        }
 	});
@@ -106,18 +109,17 @@ public class RequestFrame extends JFrame
         setLocation(f.getX() - (getWidth() - f.getWidth())/2, f.getY() + f.getHeight() + f.getHeight()/6);
         pack();
     }
-    public void privateChat(String from)
+    public void privateChat()
     {
         try
         {
         WaitFrame wf = new WaitFrame("Setting up private chat");
         wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
-        client.objectOut.writeObject("097 099 099 101 112 116 101 100");
+        AcceptedInvite acc = new AcceptedInvite(this.invite);
+        client.objectOut.writeObject(acc);
         client.objectOut.reset();
         sleep(100);
         client.wf = wf;
-        client.objectOut.writeObject(from);
-        client.objectOut.reset();
         }
         catch(Exception e)
         {

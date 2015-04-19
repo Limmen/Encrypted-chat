@@ -144,15 +144,19 @@ public class ChatFrame extends JFrame
                     {
                         if(encrypted)
                         {
-                             updateChat(client.getUsername() + " " + clearText);
-                             client.objectOut.flush();
-                             client.objectOut.writeObject("101 110 099 114 121 112 116 101 100");
-                             client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
-                             client.objectOut.reset();
+                            updateChat(new ChatEntry(client.getUsername(), clearText, false));
+                            client.objectOut.flush();
+                            ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText());
+                            client.objectOut.writeObject(ce);
+                            client.objectOut.reset();
                         }
                         else
                         {
-                            client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                            updateChat(new ChatEntry(client.getUsername(), entry.getText(), false));
+                            client.objectOut.flush();
+                            ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText(), false);
+                            client.objectOut.writeObject(ce);
+                            client.objectOut.reset();
                         }
                         entry.setText("");
                         encrypted = false;
@@ -195,19 +199,9 @@ public class ChatFrame extends JFrame
         chatPanel.add(scroll, "span");
         pack();
     }
-    public void updateChat(String msg)
+    public void updateChat(ChatEntry ce)
     {
-        String[] someentry = msg.split(" ", 2);
-        String user = someentry[0];
-        String text = someentry[1];
-        if(user.equals(client.username))
-        {
-            chat.newEntry(user,text,client,false);
-        }
-        else
-        {
-            chat.newEntry(user, text, client);
-        }
+        chat.newEntry(ce, client);
         updateChat(chat.getChat(client));
         pack();
     }

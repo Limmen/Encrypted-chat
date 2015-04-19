@@ -2,9 +2,9 @@ package model;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import static java.lang.Thread.sleep;
 import java.net.Socket;
 import java.util.ArrayList;
+import view.ChatFrame;
 import view.PrivateChatFrame;
 import view.WaitFrame;
 
@@ -28,6 +28,7 @@ public class PrivateClient extends Thread
     public ObjectOutputStream objectOut;
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     WaitFrame wf;
+    ChatRoomEntry me;
     boolean sent = false;
     
     public PrivateClient(String ip, int port, String username, Chat chat)
@@ -38,22 +39,22 @@ public class PrivateClient extends Thread
         this.chat = chat;
         this.key = new RSA();
         this.myPublicKey = key.publicKey;
+        this.me = new ChatRoomEntry(username, ip);
         try
         {
         socket = new Socket(ip, port);
-        objectOut = new ObjectOutputStream(socket.getOutputStream());
-        objectIn = new ObjectInputStream(socket.getInputStream());
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
     }
-    public void setFrame()
+    public void setFrame(ChatFrame cf)
     {
         chat.setFrame(this);
         pc.key = this.key;
         pc.setVisible(false);
+        pc.cf = cf;
     }
     public void setWaitFrame(WaitFrame wf)
     {
@@ -64,76 +65,34 @@ public class PrivateClient extends Thread
     {
             try
             {
-                objectOut.flush();
-                objectOut.writeObject(username);
-                objectOut.reset();
-                objectOut.flush();
-                objectOut.writeObject(ip);
-                objectOut.reset();
-                
+                init();
         while (true)
         {
-            String inputs  = (String) objectIn.readObject();
-            if(inputs == null)
+            Object o  = objectIn.readObject();
+            if(o == null)
             {
                 //Connection to Server was lost
                 pc.lostConnection();
                 kill();
             }
-            if(inputs.equals("105 110 099 111 109 109 105 110 103 032 107 101 121"))
+            if(o instanceof RSAPublicKey)
             {
-                RSAPublicKey k = (RSAPublicKey) objectIn.readObject();
-                friendPublicKey = k;
-                System.out.println(username + "received public key");
-                if(sent == true)
-                {
-                    wf.dispose();
-                    pc.setVisible(true);
-                }
-                continue;
+                this.friendPublicKey = (RSAPublicKey) o;
+                wf.dispose();
+                pc.setVisible(true);
             }
-            if(inputs.equals("082 083 065"))
+            
+            if(o instanceof ArrayList)
             {
-                
-                objectOut.writeObject("105 110 099 111 109 109 105 110 103 032 107 101 121");
-                sleep(1000);
-                objectOut.flush();
-                objectOut.writeObject(myPublicKey);
-                this.sent = true;
-                System.out.println("Client sent my public key");
-                objectOut.reset();
-                String ack = (String) objectIn.readObject();
-                System.out.println("Client received ack");
-                if(ack.equalsIgnoreCase("key sent"))
-                {
-                    if(this.friendPublicKey == null)
-                    {
-                        sleep(100);
-                        requestKey();
-                    }
-                    else
-                    {
-                        wf.dispose();
-                        pc.setVisible(true);
-                    }
-                }
-                
-                continue;
-            }
-            if(inputs.equals("117 115 101 114 110 097 109 101"))
-            {
-                sleep(500);
-                Object o = objectIn.readObject();
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
                 pc.updateUsers(users);
-                //users = null;
                 continue;
             }
-             if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
-             {
-                 String port = (String) objectIn.readObject();
-             }
-            chat.updateChat(inputs, this);
+            if(o instanceof ChatEntry)
+            {
+                ChatEntry ce = (ChatEntry) o;
+                chat.updateChat(ce, this);
+            }
             
         }
             }
@@ -170,6 +129,7 @@ public class PrivateClient extends Thread
             objectOut.close();
             socket.close();
             interrupt();
+
             stop();
         }
         catch(Exception e)
@@ -177,20 +137,23 @@ public class PrivateClient extends Thread
             
         }
     }
-    
-    public void requestKey()
+    public void init()
     {
         try
         {
-            System.out.println("Requesting key nr 2");
-            objectOut.flush();
-            objectOut.writeObject("082 083 065");
-            objectOut.reset();
+        objectOut = new ObjectOutputStream(socket.getOutputStream());
+        objectIn = new ObjectInputStream(socket.getInputStream());
+        objectOut.writeObject(myPublicKey);
+        objectOut.reset();
+        objectOut.flush();
+        objectOut.writeObject(me);
+        objectOut.reset();
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
     }
+    
     
 }

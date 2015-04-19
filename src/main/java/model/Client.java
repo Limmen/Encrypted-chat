@@ -26,6 +26,7 @@ public class Client extends Thread
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     public WaitFrame wf;
     private String to;
+    private ChatRoomEntry me;
     
     public Client(String ip, int port, String username, Chat chat) throws Exception
     {
@@ -33,6 +34,7 @@ public class Client extends Thread
         this.port = port;
         this.username = username;
         this.chat = chat;
+        this.me = new ChatRoomEntry(username, ip);
         socket = new Socket(ip, port);
     }
     @Override
@@ -42,59 +44,52 @@ public class Client extends Thread
             {
                 objectOut = new ObjectOutputStream(socket.getOutputStream());
                 objectIn = new ObjectInputStream(socket.getInputStream());
-                RSA key = (RSA)objectIn.readObject();
-                cf.key = key;
-                sleep(100);
-                objectOut.writeObject(username);
+                
+                objectOut.writeObject(me);
                 objectOut.reset();
-                sleep(50);
-                objectOut.writeObject(ip);
         while (true)
         {
-            String inputs =(String)objectIn.readObject();
-            if(inputs == null)
+            Object o  =objectIn.readObject();
+            if(o == null)
             {
                 //Connection to Server was lost
                 cf.lostConnection();
                 kill();
             }
-            if(inputs.equals("117 115 101 114 110 097 109 101"))
+            if(o instanceof RSA)
             {
-                Object o = objectIn.readObject();
+                cf.key = (RSA) o;
+                continue;
+            }
+            if(o instanceof ArrayList)
+            {
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
                 cf.updateUsers(users);
                 users = null;
+                continue; 
+            }
+            if(o instanceof ChatInvite)
+            {
+                ChatInvite invite = (ChatInvite) o;
+                new RequestFrame(invite, this);
                 continue;
             }
-             if(inputs.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
+             if(o instanceof PrivateChatInfo)
              {
-                 //String port = (String) objectIn.readObject();
-                 String from = (String) objectIn.readObject();
-                 new RequestFrame(from, this);
-                 continue;
-             }
-             if(inputs.equalsIgnoreCase("115 101 116 116 105 110 103 032 117 112 032 099 104 097 116"))
-             {
-                 String port = (String) objectIn.readObject();
-                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
+                 System.out.println("Starting new privateClient: " + username);
+                 PrivateChatInfo info = (PrivateChatInfo) o;
+                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(info.port), username, new Chat(ip, Integer.parseInt(info.port)));
                  cf.setState(cf.ICONIFIED);
-                 pc.setFrame();
+                 pc.setFrame(cf);
                  wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
                  pc.setWaitFrame(wf);
                  pc.start();
              }
-             if(inputs.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
+             if(o instanceof ChatEntry)
              {
-                 String port = (String) objectIn.readObject();
-                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(port), username, new Chat(ip, Integer.parseInt(port)));
-                 cf.setState(cf.ICONIFIED);
-                 wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
-                 pc.setWaitFrame(wf);
-                 pc.setFrame();
-                 pc.start();
-                 continue;
+                 ChatEntry ce = (ChatEntry) o;
+                 chat.updateChat(ce, this);
              }
-            chat.updateChat(inputs, this);
             
         }
             }
@@ -143,9 +138,8 @@ public class Client extends Thread
         this.to = to;
         this.wf = new WaitFrame("Waiting for " + to + " to accept private-chat invite");
         wf.setText("Waiting for ", to, " to accept private-chat invite");
-        objectOut.writeObject("112 114 105 118 097 116 101 032 099 104 097 116"); //ascii for "private chat"
-        objectOut.reset();
-        objectOut.writeObject(from + " " + to);
+        ChatInvite invite = new ChatInvite(to, from);
+        objectOut.writeObject(invite); 
         objectOut.reset();
         }
         catch(Exception e)

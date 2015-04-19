@@ -27,9 +27,11 @@ public class EntryPanel extends JPanel
     ChatFrame cf;
     PrivateChatFrame pc;
     JLabel txt;
+    ChatEntry entry;
     public EntryPanel(ChatFrame cf, ChatEntry entry)
     {
         this.cf = cf;
+        this.entry = entry;
         if(entry.encrypted)
         {
             setLayout(new MigLayout("wrap 3"));
@@ -42,7 +44,10 @@ public class EntryPanel extends JPanel
                 {   
                     String decrypted = decrypt();
                     if(decrypted != null)
-                    txt.setText(decrypted);
+                    {
+                        txt.setText(decrypted);
+                        clearPanel(decrypted);
+                    }
 	        }
             });
             add(decrypt, "span 1");
@@ -69,6 +74,7 @@ public class EntryPanel extends JPanel
     public EntryPanel(PrivateChatFrame pc, ChatEntry entry)
     {
         this.pc = pc;
+        this.entry = entry;
         if(entry.encrypted)
         {
             setLayout(new MigLayout("wrap 3"));
@@ -80,7 +86,10 @@ public class EntryPanel extends JPanel
                 {   
                     String decrypted = privateDecrypt();
                     if(decrypted != null)
-                    txt.setText(decrypted);
+                    {
+                        txt.setText(decrypted);
+                        clearPanel(decrypted);
+                    }
 	        }
             });
             add(decrypt, "span 1");
@@ -104,7 +113,19 @@ public class EntryPanel extends JPanel
             setBackground(Color.WHITE); 
         }
     }
-    
+    public void clearPanel(String text)
+    {
+        entry.encrypted = false;
+        entry.msg = text;
+        removeAll();
+        txt = new JLabel(entry.getAuthor());
+        txt.setFont(PBold);
+        add(txt, "span 1");
+        txt = new JLabel(text);
+        txt.setFont(Plain);
+        add(txt,"span 1");
+        setBackground(Color.WHITE); 
+    }
     public String decrypt()
     {
         String decrypted = cf.decrypt(txt.getText());

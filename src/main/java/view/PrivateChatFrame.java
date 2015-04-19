@@ -58,6 +58,7 @@ public class PrivateChatFrame extends JFrame
     private ArrayList<ChatRoomEntry> users = new ArrayList();
     boolean encrypted = false;
     String clearText;
+    public ChatFrame cf;
     public PrivateChatFrame(Chat chat, PrivateClient client)
     {
         super(client.username + " " + client.ip + " " + client.port);
@@ -143,17 +144,21 @@ public class PrivateChatFrame extends JFrame
                 {   
                     try
                     {
-                        if(encrypted)
+                       if(encrypted)
                         {
-                             updateChat(client.getUsername() + " " + clearText);
-                             client.objectOut.flush();
-                             client.objectOut.writeObject("101 110 099 114 121 112 116 101 100");
-                             client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
-                             client.objectOut.reset();
+                            updateChat(new ChatEntry(client.getUsername(), clearText, false));
+                            client.objectOut.flush();
+                            ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText());
+                            client.objectOut.writeObject(ce);
+                            client.objectOut.reset();
                         }
                         else
                         {
-                            client.objectOut.writeObject(client.getUsername() + " " + entry.getText());
+                            updateChat(new ChatEntry(client.getUsername(), entry.getText(), false));
+                            client.objectOut.flush();
+                            ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText(), false);
+                            client.objectOut.writeObject(ce);
+                            client.objectOut.reset();
                         }
                         entry.setText("");
                         encrypted = false;
@@ -195,19 +200,9 @@ public class PrivateChatFrame extends JFrame
         chatPanel.add(scroll, "span");
         pack();
     }
-    public void updateChat(String msg)
+    public void updateChat(ChatEntry ce)
     {
-        String[] someentry = msg.split(" ", 2);
-        String user = someentry[0];
-        String text = someentry[1];
-        if(user.equals(client.username))
-        {
-            chat.newEntry(user,text,client,false);
-        }
-        else
-        {
-            chat.newEntry(user, text, client);
-        }
+        chat.newEntry(ce, client);
         updateChat(chat.getChat(client));
         pack();
     }
@@ -229,6 +224,8 @@ public class PrivateChatFrame extends JFrame
     public void cleanUp()
     {
         chat.cleanUp(client);
+        cf.setState(cf.MAXIMIZED_BOTH);
+        cf.pack();
     }
     public String decrypt(String crypto)
     {
@@ -259,6 +256,11 @@ public class PrivateChatFrame extends JFrame
     {
         for(ChatRoomEntry e : users)
         {
+            if(e == null)
+            {
+                System.out.println("ChatRoomEntry is null");
+                continue;
+            }
             if(e.username != client.username)
                 setUser(e.username);
             JPanel user = new UserPanel(this, e.username, e.ip);
@@ -270,10 +272,6 @@ public class PrivateChatFrame extends JFrame
     {
         //new ErrorFrame(name);
         dispose();
-    }
-    public void requestKey()
-    {
-       client.requestKey();
     }
     public void delay()
     {

@@ -35,91 +35,79 @@ public class ClientHandler extends Thread{
                 sleep(100);
                 objectOut.writeObject(server.key);
                 objectOut.reset();
-                String user = (String) objectIn.readObject();
-                String ip = (String) objectIn.readObject();
-                client = new ChatRoomEntry(user,ip);
-                server.chatroomEntrys.add(client);
-                updateUsers();
                 while(true)
                 {
-                    String input = (String) objectIn.readObject();
-                    if(input == null)
+                    Object o =  objectIn.readObject();
+                    if(o == null)
                     {
                         //Client left the chat.
-                        server.getHandlers().remove(this);
-                        server.chatroomEntrys.remove(client);
-                        updateUsers();
+                        userLeft();
                         socket.close();
                         return;
                     }
-                    if(input.equalsIgnoreCase("112 114 105 118 097 116 101 032 099 104 097 116"))
+                    if(o instanceof ChatRoomEntry)
                     {
-                        //Start wait frame for setting up private chat
-                        String received = (String) objectIn.readObject();
-                        String[] someentry = received.split(" ", 2);
-                        String from = someentry[0];
-                        String to = someentry[1];
+                        this.client = (ChatRoomEntry) o;
+                        server.chatroomEntrys.add(client);
+                        updateUsers();
+                    }
+                    if(o instanceof ChatInvite)
+                    {
+                        ChatInvite invite = (ChatInvite) o;
                         for(ClientHandler ch : server.getHandlers())
                         {
-                            if(ch.client.username.equalsIgnoreCase(to))
+                            if(ch.client.username.equalsIgnoreCase(invite.to))
                             {
-                                ch.printToClient("112 114 105 118 097 116 101 032 099 104 097 116");
-                                sleep(100);
-                                ch.printToClient(from);
+                                ch.printToClient(invite);
                                 continue;
                             }
                         }
-                        continue;
                     }
-                    if(input.equalsIgnoreCase("101 110 099 114 121 112 116 101 100"))
+                    if(o instanceof AcceptedInvite)
                     {
-                        String crypto = (String) objectIn.readObject();
-                        for(ClientHandler ch : server.getHandlers())
-                        {
-                            if(ch != this)
-                            {
-                                ch.printToClient(crypto);
-                                sleep(100);
-                            }
-                        }
-                        continue;
-                    }
-                    if(input.equalsIgnoreCase("097 099 099 101 112 116 101 100"))
-                    {
+                        AcceptedInvite acc = (AcceptedInvite) o;
                         ServerSocket privateServer = new ServerSocket(0);
                         String port = Integer.toString(privateServer.getLocalPort());
-                        String from = (String) objectIn.readObject();
-                        printToClient("115 101 116 116 105 110 103 032 117 112 032 099 104 097 116");
-                        printToClient(port);
+                        PrivateChatInfo info = new PrivateChatInfo(port);
+                        
+                        printToClient(info);
                         for(ClientHandler ch : server.getHandlers())
                         {
-                            if(ch.client.username.equalsIgnoreCase(from))
+                            if(ch.client.username.equalsIgnoreCase(acc.invite.from))
                             {
-                                ch.printToClient("097 099 099 101 112 116 101 100");
-                                ch.printToClient(port);
-                                
+                                ch.printToClient(info);  
                             }
                         }
                         PrivateHandler one = new PrivateHandler(privateServer.accept(), server, 1);
                         PrivateHandler two = new PrivateHandler(privateServer.accept(), server, 1);
-                        one.otherhandler = two;
-                        two.otherhandler = one;
-                        sleep(2000);
-                        one.requestKey();
+                        one.setHandler(two);
+                        two.setHandler(one);
                         privateServer.close();
                         continue;
-                        
                     }
-                    for(ClientHandler ch : server.getHandlers())
+                    if(o instanceof ChatEntry)
                     {
-                        ch.printToClient(input);
-                        sleep(100);
+                        for(ClientHandler ch : server.getHandlers())
+                        {
+                            if(ch != this)
+                            ch.printToClient(o);
+                            sleep(100);
+                        }
                     }
                 }
             }
                 catch(Exception e)
                 {
-                        e.printStackTrace();
+                        userLeft();
+                        try
+                        {
+                            socket.close();
+                        }
+                        catch(Exception g)
+                        {
+                            
+                        }
+                        return;
                 }
         }
         public void printToClient(String msg)
@@ -165,7 +153,6 @@ public class ClientHandler extends Thread{
             {
             for(ClientHandler ch : server.getHandlers())
                     {
-                        ch.printToClient("117 115 101 114 110 097 109 101"); //ascii for username
                         ch.printToClient(server.chatroomEntrys);
                         sleep(100);
                     }
@@ -175,5 +162,18 @@ public class ClientHandler extends Thread{
                             e.printStackTrace();
                         }
                     
+        }
+        public void userLeft()
+        {
+            server.getHandlers().remove(this);
+            server.chatroomEntrys.remove(client);
+            updateUsers();
+            ChatEntry ce = new ChatEntry("Server", "<html> <font color=blue> " + client.username + "</font>" + " left the chat </html>", false);
+            for(ClientHandler ch : server.getHandlers())
+            {
+                if(ch != this)
+                    ch.printToClient(ce);
+            }
+            
         }
     }
