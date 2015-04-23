@@ -32,6 +32,7 @@ public class ConnectFrame extends JFrame
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
+    private Menu menu;
     public ConnectFrame(View view)
     {
         super("Connect");
@@ -49,6 +50,7 @@ public class ConnectFrame extends JFrame
         {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
+        menu = new Menu();
         this.view = view;
         this.setLayout(new MigLayout());
         startup();
@@ -68,6 +70,21 @@ public class ConnectFrame extends JFrame
     public void startup()
     {
         container = new JPanel(new MigLayout("wrap 2"));
+        setJMenuBar(menu.getMenu());
+        menu.getHelp().addActionListener(new ActionListener() 
+        {
+           public void actionPerformed(ActionEvent arg0) 
+           {
+               Help();
+           }
+        });
+        menu.getAbout().addActionListener(new ActionListener() 
+        {
+           public void actionPerformed(ActionEvent arg0) 
+           {
+               About();
+           }
+        });
         txt = new JLabel("Create a connection to a running server");
         txt.setFont(Plain);
         container.add(txt, "span 2, align center");
@@ -141,6 +158,14 @@ public class ConnectFrame extends JFrame
     public void cleanUp()
     {
         view.cleanUp();
+    }
+    public void About()
+    {
+        new AboutFrame();
+    }
+    public void Help()
+    {
+        new HelpFrame();
     }
 }
 

@@ -69,12 +69,10 @@ public class RequestFrame extends JFrame
     {
         container = new JPanel(new MigLayout("wrap 1"));
         JPanel panel = new JPanel(new MigLayout("wrap 2"));
-        txt = new JLabel(requestFrom);
-        txt.setFont(PBold);
-        panel.add(txt, "span 1, align center");
-        txt = new JLabel(" have invited you to a private and secure chat");
+        txt = new JLabel("<html> <body> <b>" + requestFrom + "</b> have invited you to a private and secure chat. <br>"
+                + " By accepting this invite you agree to send your public key to <b> " + requestFrom + "</b> for encryption </body> </html>");
         txt.setFont(Plain);
-        panel.add(txt,"span 1, align center");
+        panel.add(txt,"span 2, align center");
         container.add(panel, "span, align center");
         panel = new JPanel(new MigLayout("wrap 2"));
         yes = new JButton("Accept");

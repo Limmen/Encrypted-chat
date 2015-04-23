@@ -136,8 +136,8 @@ public class Client extends Thread
         try
         {
         this.to = to;
-        this.wf = new WaitFrame("Waiting for " + to + " to accept private-chat invite");
-        wf.setText("Waiting for ", to, " to accept private-chat invite");
+        this.wf = new WaitFrame("Waiting for " +  to + " to accept private-chat invite");
+        wf.setText("<html> <body> Waiting for <b> " +  to + "</b> to accept private-chat invite </body> </html>");
         ChatInvite invite = new ChatInvite(to, from);
         objectOut.writeObject(invite); 
         objectOut.reset();
