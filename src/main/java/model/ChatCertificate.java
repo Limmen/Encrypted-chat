@@ -12,15 +12,15 @@ import java.io.Serializable;
  *
  * @author Kim
  */
-public class PrivateChatInfo implements Serializable
+public class ChatCertificate implements Serializable
 {
-    
-    public String port;
-    public ChatCertificate certificate;
-    
-    public PrivateChatInfo(String port, ChatCertificate certificate)
+    RSAPublicKey publicKey;
+    String username;
+
+    public ChatCertificate(RSAPublicKey publicKey, String username)
     {
-        this.port = port;
-        this.certificate = certificate;
+        this.publicKey = publicKey;
+        this.username = username;
     }
+    
 }

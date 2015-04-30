@@ -30,12 +30,6 @@ public class Chat
     {
         client.cf = frame;
     }
-    public void setFrame(PrivateClient client)
-    {
-        if(client == null)
-            System.out.println("client == null..");
-        client.pc = new PrivateChatFrame(this, client);
-    }
     public void updateChat(ChatEntry ce, Client client)
     {
         client.cf.updateChat(ce);

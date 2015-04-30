@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import static java.lang.ProcessBuilder.Redirect.from;
 import static java.lang.Thread.sleep;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -82,7 +81,7 @@ public class RequestFrame extends JFrame
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
                    privateChat();
-                   dispose();
+                   //dispose();
 	        }
 	});
         panel.add(yes, "span 1, align center");
@@ -111,13 +110,14 @@ public class RequestFrame extends JFrame
     {
         try
         {
+        dispose();
         WaitFrame wf = new WaitFrame("Setting up private chat");
         wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
+        client.wf = wf;
         AcceptedInvite acc = new AcceptedInvite(this.invite);
         client.objectOut.writeObject(acc);
         client.objectOut.reset();
-        sleep(100);
-        client.wf = wf;
+        sleep(500);
         }
         catch(Exception e)
         {

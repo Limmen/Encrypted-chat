@@ -2,7 +2,9 @@ package model;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import view.ChatFrame;
 import view.PrivateChatFrame;
@@ -29,36 +31,31 @@ public class PrivateClient extends Thread
     ArrayList<ChatEntry> chatentrys = new ArrayList();
     WaitFrame wf;
     ChatRoomEntry me;
+    ChatFrame cf;
     boolean sent = false;
     
-    public PrivateClient(String ip, int port, String username, Chat chat)
+    public PrivateClient(String ip, int port, String username, Chat chat, RSA key, ChatCertificate certificate)
     {
         this.ip = ip;
         this.port = port;
         this.username = username;
         this.chat = chat;
-        this.key = new RSA();
+        this.key = key;
         this.myPublicKey = key.publicKey;
+        this.friendPublicKey = certificate.publicKey;
         this.me = new ChatRoomEntry(username, ip);
+        pc = new PrivateChatFrame(chat, this);
+        pc.key = this.key;
+        pc.setVisible(true);
+        pc.cf = cf;
         try
         {
-        socket = new Socket(ip, port);
+            socket = new Socket(ip, port);
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
-    }
-    public void setFrame(ChatFrame cf)
-    {
-        chat.setFrame(this);
-        pc.key = this.key;
-        pc.setVisible(false);
-        pc.cf = cf;
-    }
-    public void setWaitFrame(WaitFrame wf)
-    {
-        this.wf = wf;
     }
     @Override
     public void run()
@@ -75,13 +72,6 @@ public class PrivateClient extends Thread
                 pc.lostConnection();
                 kill();
             }
-            if(o instanceof RSAPublicKey)
-            {
-                this.friendPublicKey = (RSAPublicKey) o;
-                wf.dispose();
-                pc.setVisible(true);
-            }
-            
             if(o instanceof ArrayList)
             {
                 ArrayList<ChatRoomEntry> users = (ArrayList<ChatRoomEntry>) o;
@@ -91,6 +81,10 @@ public class PrivateClient extends Thread
             if(o instanceof ChatEntry)
             {
                 ChatEntry ce = (ChatEntry) o;
+                if(verify(ce))
+                {
+                    ce.verified = true;
+                }
                 chat.updateChat(ce, this);
             }
             
@@ -141,18 +135,43 @@ public class PrivateClient extends Thread
     {
         try
         {
-        objectOut = new ObjectOutputStream(socket.getOutputStream());
-        objectIn = new ObjectInputStream(socket.getInputStream());
-        objectOut.writeObject(myPublicKey);
-        objectOut.reset();
-        objectOut.flush();
-        objectOut.writeObject(me);
-        objectOut.reset();
+            objectOut = new ObjectOutputStream(socket.getOutputStream());
+            objectIn = new ObjectInputStream(socket.getInputStream());
+            objectOut.writeObject(me);
+            objectOut.reset();
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
+    }
+    public boolean verify(ChatEntry ce)
+    {
+        try
+        {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(ce.msg.getBytes());
+            byte byteData[] = md.digest();
+            //convert the byte to hex format method 1
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < byteData.length; i++) 
+            {
+                sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            BigInteger hash = new BigInteger(sb.toString().getBytes());
+            if(friendPublicKey.verify(ce.sign).equals(hash))
+            {
+                return true;
+            }
+            else
+                return false;
+                 
+        }
+        catch(Exception e)
+        {
+            
+        }
+        return false;
     }
     
     

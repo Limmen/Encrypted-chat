@@ -149,6 +149,7 @@ public class PrivateChatFrame extends JFrame
                             updateChat(new ChatEntry(client.getUsername(), clearText, false));
                             client.objectOut.flush();
                             ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText());
+                            ce.sign(key);
                             client.objectOut.writeObject(ce);
                             client.objectOut.reset();
                         }
@@ -157,6 +158,7 @@ public class PrivateChatFrame extends JFrame
                             updateChat(new ChatEntry(client.getUsername(), entry.getText(), false));
                             client.objectOut.flush();
                             ChatEntry ce = new ChatEntry(client.getUsername(), entry.getText(), false);
+                            ce.sign(key);
                             client.objectOut.writeObject(ce);
                             client.objectOut.reset();
                         }
@@ -178,7 +180,7 @@ public class PrivateChatFrame extends JFrame
 	    public void actionPerformed(ActionEvent arg0) 
                 {   
                     clearText = entry.getText();
-                    BigInteger crypto = key.encrypt(key.createmessage(entry.getText()));
+                    BigInteger crypto = client.friendPublicKey.encrypt(client.friendPublicKey.createmessage(entry.getText()));
                     entry.setText(crypto.toString());
                     encrypted = true;
                     pack();
@@ -238,7 +240,7 @@ public class PrivateChatFrame extends JFrame
         {
             return null;
         }
-        BigInteger decrypted = key.decrypt(crypt, client.friendPublicKey);
+        BigInteger decrypted = key.decrypt(crypt);
         String decrypt = new String(decrypted.toByteArray());
         return decrypt;
     }
@@ -261,7 +263,7 @@ public class PrivateChatFrame extends JFrame
                 System.out.println("ChatRoomEntry is null");
                 continue;
             }
-            if(e.username != client.username)
+            if(!e.username.equals(client.username))
                 setUser(e.username);
             JPanel user = new UserPanel(this, e.username, e.ip);
             panel.add(user, "span 1");
@@ -270,7 +272,7 @@ public class PrivateChatFrame extends JFrame
     }
     public void lostConnection()
     {
-        //new ErrorFrame(name);
+        new ErrorFrame(name);
         dispose();
     }
     public void delay()

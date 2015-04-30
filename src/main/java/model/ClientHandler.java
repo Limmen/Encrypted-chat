@@ -51,6 +51,11 @@ public class ClientHandler extends Thread{
                         server.chatroomEntrys.add(client);
                         updateUsers();
                     }
+                    if(o instanceof ChatCertificate)
+                    {
+                        ChatCertificate certificate = (ChatCertificate) o;
+                        server.certificates.add(certificate);
+                    }
                     if(o instanceof ChatInvite)
                     {
                         ChatInvite invite = (ChatInvite) o;
@@ -68,14 +73,23 @@ public class ClientHandler extends Thread{
                         AcceptedInvite acc = (AcceptedInvite) o;
                         ServerSocket privateServer = new ServerSocket(0);
                         String port = Integer.toString(privateServer.getLocalPort());
-                        PrivateChatInfo info = new PrivateChatInfo(port);
-                        
-                        printToClient(info);
+                        ChatCertificate certFrom = null;
+                        ChatCertificate certTo = null;
+                        for(ChatCertificate cert : server.certificates)
+                        {
+                            if(cert.username.equals(acc.invite.from))
+                                certTo = cert;
+                            if(cert.username.equals(acc.invite.to))
+                                certFrom = cert;
+                        }
+                        PrivateChatInfo infoTo = new PrivateChatInfo(port, certTo);
+                        PrivateChatInfo infoFrom = new PrivateChatInfo(port, certFrom);
+                        printToClient(infoTo);
                         for(ClientHandler ch : server.getHandlers())
                         {
                             if(ch.client.username.equalsIgnoreCase(acc.invite.from))
                             {
-                                ch.printToClient(info);  
+                                ch.printToClient(infoFrom);  
                             }
                         }
                         PrivateHandler one = new PrivateHandler(privateServer.accept(), server, 1);

@@ -31,7 +31,7 @@ public class ChatFrame extends JFrame
 {
     private View view;
     private Chat chat;
-    private Client client;
+    Client client;
     JPanel container;
     JLabel txt;
     JButton btn;

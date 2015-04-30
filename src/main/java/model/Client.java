@@ -27,6 +27,8 @@ public class Client extends Thread
     public WaitFrame wf;
     private String to;
     private ChatRoomEntry me;
+    private RSA key;
+    private ChatCertificate certificate;
     
     public Client(String ip, int port, String username, Chat chat) throws Exception
     {
@@ -35,6 +37,8 @@ public class Client extends Thread
         this.username = username;
         this.chat = chat;
         this.me = new ChatRoomEntry(username, ip);
+        this.key = new RSA();
+        this.certificate = new ChatCertificate(key.publicKey, username);
         socket = new Socket(ip, port);
     }
     @Override
@@ -46,6 +50,7 @@ public class Client extends Thread
                 objectIn = new ObjectInputStream(socket.getInputStream());
                 
                 objectOut.writeObject(me);
+                objectOut.writeObject(certificate);
                 objectOut.reset();
         while (true)
         {
@@ -76,13 +81,13 @@ public class Client extends Thread
             }
              if(o instanceof PrivateChatInfo)
              {
+                 wf.dispose();
                  System.out.println("Starting new privateClient: " + username);
                  PrivateChatInfo info = (PrivateChatInfo) o;
-                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(info.port), username, new Chat(ip, Integer.parseInt(info.port)));
+                 PrivateClient pc = new PrivateClient(ip, Integer.parseInt(info.port), username, new Chat(ip, Integer.parseInt(info.port)), key, info.certificate);
                  cf.setState(cf.ICONIFIED);
-                 pc.setFrame(cf);
-                 wf.setText("Please wait while we set up the private chat. Exchanging public RSA keys..");
-                 pc.setWaitFrame(wf);
+                 pc.cf = cf;
+                 sleep(100);
                  pc.start();
              }
              if(o instanceof ChatEntry)
@@ -135,12 +140,12 @@ public class Client extends Thread
     {
         try
         {
-        this.to = to;
-        this.wf = new WaitFrame("Waiting for " +  to + " to accept private-chat invite");
-        wf.setText("<html> <body> Waiting for <b> " +  to + "</b> to accept private-chat invite </body> </html>");
-        ChatInvite invite = new ChatInvite(to, from);
-        objectOut.writeObject(invite); 
-        objectOut.reset();
+            this.to = to;
+            this.wf = new WaitFrame("Waiting for " +  to + " to accept private-chat invite");
+            wf.setText("<html> <body> Waiting for <b> " +  to + "</b> to accept private-chat invite </body> </html>");
+            ChatInvite invite = new ChatInvite(to, from);
+            objectOut.writeObject(invite); 
+            objectOut.reset();
         }
         catch(Exception e)
         {

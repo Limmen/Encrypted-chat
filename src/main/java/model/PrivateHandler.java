@@ -42,6 +42,7 @@ public class PrivateHandler extends Thread{
                         otherhandler.userLeft(client);
                         return;
                     }
+                    /*
                     if(o instanceof RSAPublicKey)
                     {
                         if(client != null)
@@ -53,7 +54,7 @@ public class PrivateHandler extends Thread{
                             otherhandler.setHandler(this);
                         }
                         continue;
-                    }
+                    } */
                     if(o instanceof ChatRoomEntry)
                     {
                         this.client = (ChatRoomEntry) o;

@@ -4,11 +4,14 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import model.ChatEntry;
 import net.miginfocom.swing.MigLayout;
+import util.ImageReader;
 
 /**
  *This class represents the panel which holds the chatentrys.
@@ -28,10 +31,13 @@ public class EntryPanel extends JPanel
     PrivateChatFrame pc;
     JLabel txt;
     ChatEntry entry;
+    BufferedImage image;
+    ImageReader reader;
     public EntryPanel(ChatFrame cf, ChatEntry entry)
     {
         this.cf = cf;
         this.entry = entry;
+        reader = new ImageReader();
         if(entry.encrypted)
         {
             setLayout(new MigLayout("wrap 3"));
@@ -75,9 +81,20 @@ public class EntryPanel extends JPanel
     {
         this.pc = pc;
         this.entry = entry;
+        reader = new ImageReader();
         if(entry.encrypted)
         {
-            setLayout(new MigLayout("wrap 3"));
+            if(entry.verified)
+            {
+                setLayout(new MigLayout("wrap 4"));
+                image = reader.readImage("verified.png");
+                JLabel img = new JLabel(new ImageIcon(image));
+                add(img, "span 1");
+            }
+            else
+            {
+                setLayout(new MigLayout("wrap 3"));
+            }
             JButton decrypt = new JButton("Decrypt");
             decrypt.setFont(smallPlain);
             decrypt.addActionListener(new ActionListener() 
@@ -103,7 +120,17 @@ public class EntryPanel extends JPanel
         }
         else
         {
-            setLayout(new MigLayout("wrap 2"));
+            if(entry.verified)
+            {
+                setLayout(new MigLayout("wrap 4"));
+                image = reader.readImage("verified.png");
+                JLabel img = new JLabel(new ImageIcon(image));
+                add(img, "span 1");
+            }
+            else
+            {
+                setLayout(new MigLayout("wrap 2"));
+            }
             txt = new JLabel(entry.getAuthor());
             txt.setFont(PBold);
             add(txt, "span 1");
@@ -118,6 +145,12 @@ public class EntryPanel extends JPanel
         entry.encrypted = false;
         entry.msg = text;
         removeAll();
+        if(entry.verified)
+        {
+            image = reader.readImage("verified.png");
+            JLabel img = new JLabel(new ImageIcon(image));
+            add(img, "span 1");
+        }
         txt = new JLabel(entry.getAuthor());
         txt.setFont(PBold);
         add(txt, "span 1");

@@ -43,16 +43,19 @@ public class UserPanel extends JPanel
         txt = new JLabel("(" + ip + ")");
         txt.setFont(Plain);
         add(txt, "span 1");
-        btn = new JButton("Invite to Private Chat");
-        btn.setFont(smallBold);
-        btn.addActionListener(new ActionListener() 
+        if(! username.equals(cf.client.username))
         {
-	    public void actionPerformed(ActionEvent arg0) 
+            btn = new JButton("Invite to Private Chat");
+            btn.setFont(smallBold);
+            btn.addActionListener(new ActionListener() 
+            {
+                public void actionPerformed(ActionEvent arg0) 
                 {   
                     requestChat();
 	        }
-	});
-        add(btn, "span 1");
+            });
+            add(btn, "span 1");
+        }
         setBackground(Color.WHITE); 
     }
     public UserPanel(PrivateChatFrame pc, String username, String ip)

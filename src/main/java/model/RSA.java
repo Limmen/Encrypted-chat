@@ -36,7 +36,7 @@ public class RSA implements Serializable
       n    = p.multiply(q);                                  
       e  = new BigInteger("65537");     // common value in practice = 2^16 + 1
       d = e.modInverse(phi);
-      publicKey = new RSAPublicKey(d,n);
+      publicKey = new RSAPublicKey(e,n);
    }
 
    
@@ -44,14 +44,9 @@ public class RSA implements Serializable
    {
       return message.modPow(e, n);
    }
-
    public BigInteger decrypt(BigInteger encrypted) {
       return encrypted.modPow(d, n);
    }
-   public BigInteger decrypt(BigInteger encrypted, RSAPublicKey publickey) {
-      return encrypted.modPow(publickey.d, publickey.n);
-   }
-
    public String toString() 
    {
       String s = "";
@@ -64,6 +59,10 @@ public class RSA implements Serializable
    {
        BigInteger message = new BigInteger(input.getBytes());
        return message;
+   }
+   public BigInteger sign(BigInteger hash)
+   {
+       return hash.modPow(d, n);
    }
    
 }

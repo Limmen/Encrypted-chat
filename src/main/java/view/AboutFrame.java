@@ -1,13 +1,15 @@
 package view;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Font;
+import java.awt.image.BufferedImage;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
+import util.ImageReader;
 
 /**
  *This class is a frame for connecting to a running server and start a chat.
@@ -21,6 +23,8 @@ public class AboutFrame extends JFrame
     private Font Plain = new Font("Serif", Font.PLAIN, 12);
     private Font IBold = Italic.deriveFont(Italic.getStyle() | Font.BOLD);
     private Font PBold = Plain.deriveFont(Plain.getStyle() | Font.BOLD);
+    ImageReader reader;
+    BufferedImage image;
     public AboutFrame()
     {
         super("About");
@@ -38,6 +42,7 @@ public class AboutFrame extends JFrame
         {
             // If Nimbus is not available, you can set the GUI to another look and feel.
         }
+        reader = new ImageReader();
         startup();
         
         pack();
@@ -61,17 +66,23 @@ public class AboutFrame extends JFrame
                 + "a extern one, as long as you know the IP-adress and the port number. <br> <br>"
                 + "The chatrooms have RSA encryption enabled, <br>"
                 + " however what you as a user should know is that in the public chatrooms you are not using <br> "
-                + "your personal RSA-keys for decryption/encryption instead you are using the keys of that particular chatrooms. <br>"
-                + "If you want to achieve better security and use your own private key to encrypt you can press <br>"
+                + "your personal RSA-keys for decryption/encryption instead you are using the keys of that particular chatroom. <br>"
+                + "If you want to achieve better security and use your own key-pair to encrypt you can press <br>"
                 + " the button <b> invite-to-private-chat </b> "
                 + "that is next to every user in the userlist that u can find on the right in the chatroom. <br>"
                 + " Inviting a person to a private chat means that the invited person <br>"
                 + "will get a request from you where he can accept or decline the invite. <br>"
                 + "If he accepts the invite it means that a exchange between your public <br>"
                 + "keys will take place. <br> Once that exchange is done "
-                + "you can securely communicate with RSA encryption.</body> </html>");
+                + "you can securely communicate with RSA encryption. <br> <br>"
+                + "In the private chatroom digital signatures will also be added to every message you send, whether you"
+                + "choose to encrypt it or not.  <br> "
+                + "A message that is verified with digital signature will have this symbol: </body> </html>");
         txt.setFont(Plain);
         container.add(txt, "span 2, align center");
+        image = reader.readImage("verified.png");
+        JLabel img = new JLabel(new ImageIcon(image));
+        container.add(img, "span 2, align center");
         txt = new JLabel("Copyright \u00a9 Kim Hammar all rights reserved");
         txt.setFont(Plain);
         container.add(txt, "span 2, gaptop 20");
