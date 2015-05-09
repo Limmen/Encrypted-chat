@@ -10,7 +10,7 @@ import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *This class is a frame for connecting to a running server and start a chat.
+ *This class is a frame to show that a error have occurred.
  * @author kim
  */
 public class ErrorFrame extends JFrame

@@ -82,7 +82,6 @@ public class Client extends Thread
              if(o instanceof PrivateChatInfo)
              {
                  wf.dispose();
-                 System.out.println("Starting new privateClient: " + username);
                  PrivateChatInfo info = (PrivateChatInfo) o;
                  PrivateClient pc = new PrivateClient(ip, Integer.parseInt(info.port), username, new Chat(ip, Integer.parseInt(info.port)), key, info.certificate);
                  cf.setState(cf.ICONIFIED);

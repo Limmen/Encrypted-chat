@@ -12,7 +12,8 @@ import net.miginfocom.swing.MigLayout;
 import util.ImageReader;
 
 /**
- *This class is a frame for connecting to a running server and start a chat.
+ *This class is a frame that is shown to the user when there is a connection
+ * taking place to wait for.
  * @author kim
  */
 public class WaitFrame extends JFrame

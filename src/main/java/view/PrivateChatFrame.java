@@ -260,7 +260,6 @@ public class PrivateChatFrame extends JFrame
         {
             if(e == null)
             {
-                System.out.println("ChatRoomEntry is null");
                 continue;
             }
             if(!e.username.equals(client.username))
@@ -281,7 +280,6 @@ public class PrivateChatFrame extends JFrame
         Timer timer = new Timer( delay, new ActionListener(){
             @Override
             public void actionPerformed( ActionEvent e ){
-                System.out.println("timer went off");
                 cleanUp();
             }
         });

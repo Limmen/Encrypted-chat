@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import view.ErrorFrame;
 
 /**
  *This class represents the server running on localhost.
@@ -46,7 +47,7 @@ public class Server extends Thread
       }
       catch(Exception e) 
       {
-         System.out.print("There was a error with the local server \n");
+         new ErrorFrame("Error with local chatserver");
       }
     
     }

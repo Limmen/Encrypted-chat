@@ -11,7 +11,7 @@ import model.ChatEntry;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *This class represents the panel which holds the chatentrys.
+ *This class represents the panel which holds the connected users.
  * @author kim
  */
 

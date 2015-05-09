@@ -42,19 +42,6 @@ public class PrivateHandler extends Thread{
                         otherhandler.userLeft(client);
                         return;
                     }
-                    /*
-                    if(o instanceof RSAPublicKey)
-                    {
-                        if(client != null)
-                            System.out.println(client.username);
-                        this.clientKey = (RSAPublicKey) o;
-                        if(otherhandler != null)
-                        {
-                            otherhandler.printToClient(o);
-                            otherhandler.setHandler(this);
-                        }
-                        continue;
-                    } */
                     if(o instanceof ChatRoomEntry)
                     {
                         this.client = (ChatRoomEntry) o;

@@ -10,7 +10,7 @@ import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *This class is a frame for connecting to a running server and start a chat.
+ *This class is a frame for the "Help" page of the application.
  * @author kim
  */
 public class HelpFrame extends JFrame

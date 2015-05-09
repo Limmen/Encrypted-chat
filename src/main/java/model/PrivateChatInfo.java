@@ -1,16 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package model;
 
 import java.io.Serializable;
 
 /**
- *
- * @author Kim
+ *This class is used when setting up a private chat. The class contains 
+ * information that's needed to setup a chat: port and certificate of the
+ * other user.
+ * @author kim
  */
 public class PrivateChatInfo implements Serializable
 {

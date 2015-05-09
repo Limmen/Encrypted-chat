@@ -11,6 +11,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 
+/**
+ *This class represents the menu that's used on the mainframe.
+ * @author kim
+ */
 public class Menu 
 {
 	private JMenuBar menuBar;
